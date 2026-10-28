@@ -33,6 +33,12 @@ Projet du module « Dév avec Docker » (Master 2).
 Seul le frontend est joignable depuis l'extérieur. Les backends et la base sont sur des réseaux
 Docker `internal`, sans aucun port publié.
 
+L'interface n'utilise aucune ressource externe :
+- illustrations SVG générées par le serveur ;
+- polices auto-hébergées.
+
+Pages compressées en gzip : environ 120 Ko pour l'accueil, polices comprises.
+
 ## Lancer l'application (environnement TEST)
 
 Prérequis : Docker Engine ou Docker Desktop, avec Docker Compose v2.

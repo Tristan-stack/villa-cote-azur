@@ -57,7 +57,7 @@ conteneurs : un frontend, trois backends et une base de données.
 | Base SQL pour les données persistantes | PostgreSQL 17, volume nommé |
 | Frontend joignable par les clients | seul `ports:` du compose : `8081:3000` |
 | Backends et base injoignables par les clients | aucun port publié, réseaux `internal: true` |
-| Tests unitaires pour chaque backend | 17 (auth), 8 (villas), 21 (réservations), plus 24 pour le frontend |
+| Tests unitaires pour chaque backend | 17 (auth), 8 (villas), 21 (réservations), plus 27 pour le frontend |
 | Création de compte, connexion, déconnexion | `/register`, `/login`, `/logout` |
 | Comptes « standard » et « admin » | colonne `role` ; l'inscription crée toujours un compte standard |
 | Chacun peut supprimer son compte | page « Mon compte » (`DELETE /users/me`) |
@@ -167,7 +167,7 @@ une seconde et s'exécutent dans le stage `test` des Dockerfiles.
 | auth-service | `node:test` + `supertest`, ESLint | 17 |
 | villa-service | `pytest` + `TestClient` FastAPI, ruff | 8 |
 | booking-service | `pytest` (règles métier pures + API), ruff | 21 |
-| frontend | `node:test` + `supertest` (faux client API), ESLint | 24 |
+| frontend | `node:test` + `supertest` (faux client API), ESLint | 27 |
 
 En complément, le script `scripts/smoke-test.sh` teste l'application complète lancée par docker
 compose, en 28 vérifications :
@@ -176,6 +176,40 @@ compose, en 28 vérifications :
 - absence d'état du frontend ;
 - isolation réseau : backends injoignables depuis l'hôte, base injoignable depuis le frontend,
   aucun accès Internet depuis les backends.
+
+### 1.8 Interface utilisateur
+
+L'interface s'inspire des sites primés sur Awwwards :
+- mise en page éditoriale, avec une grande typographie à empattements (Fraunces) associée à une
+  linéale (Manrope) ;
+- palette méditerranéenne : bleu nuit, sable, soleil, terre cuite ;
+- animations discrètes ;
+- affichage adapté du mobile au grand écran.
+
+- **Aucune ressource externe.**
+  - Chaque villa est illustrée par une « carte postale » en SVG, générée côté serveur par un
+    gabarit EJS à partir de ses données : mer ou collines selon `sea_view`, piscine selon
+    `has_pool`, palette de couleurs propre à chaque ville. Il n'y a aucune image à stocker.
+  - Les polices sont installées comme dépendances npm (`@fontsource-variable`) et servies par le
+    frontend lui-même. Il n'y a ni CDN ni Google Fonts : aucune donnée de navigation n'est envoyée à
+    un tiers, et la démo fonctionne même sans Internet.
+- **Rapidité.**
+  - Les pages sont rendues côté serveur et compressées en gzip (middleware `compression`).
+  - Tailles compressées : page d'accueil ≈ 4 Ko, feuille de style ≈ 7 Ko, script ≈ 1 Ko, soit
+    environ 120 Ko au total avec les trois polices.
+  - Le navigateur met en cache les fichiers statiques (un an pour les polices). Un numéro de
+    version dans l'URL de la feuille de style et du script force leur mise à jour après un
+    redémarrage.
+- **Amélioration progressive.**
+  - Le site fonctionne entièrement sans JavaScript : les formulaires sont de simples formulaires
+    HTML.
+  - Le script n'ajoute que l'apparition des blocs au défilement et le calcul en direct du prix
+    total dans le formulaire de réservation.
+  - Les animations sont coupées si le système le demande (`prefers-reduced-motion`).
+- **Accessibilité** :
+  - lien d'évitement vers le contenu ;
+  - un libellé sur chaque champ ;
+  - messages de confirmation annoncés aux lecteurs d'écran (`role="status"`).
 
 ---
 
@@ -396,13 +430,14 @@ commit :
 | 2 | auth-service | 17 tests, puis essai réel contre la base |
 | 3 | Dockerfile Node.js | `docker build --target test`, hadolint |
 | 4–6 | villa-service, booking-service et leurs Dockerfiles | 8 + 21 tests, essais réels contre la base |
-| 7 | frontend | 24 tests |
+| 7 | frontend | 27 tests |
 | 8 | docker-compose.yml et environnements | `docker compose config`, démarrage complet, test de bout en bout |
 | 9 | pipeline CI/CD | pipeline vert sur GitHub, images publiées dans GHCR |
 | 10 | documentation | rapport, fiche de révision, déroulé de la démo |
+| 11 | refonte de l'interface du frontend | tests, test de bout en bout, captures d'écran sur ordinateur et mobile |
 
 Planning : du 28 au 30 octobre 2026.
-- **28/10** : étapes 0 à 9.
+- **28/10** : étapes 0 à 11.
 - **29/10** : vérifications, répétition de la démo, rapport.
 - **30/10** : démo live à 9 h, puis rendu final.
 
@@ -473,6 +508,9 @@ chaque choix.
   expliquer.
 - **Le test de bout en bout**, utilisé à la fois localement, dans la CI et comme répétition de la
   démo.
+- **Une interface soignée sans ressource externe** : illustrations SVG générées par le serveur et
+  polices auto-hébergées. Le site reste léger (≈ 120 Ko) et fonctionne sans Internet, ce qui
+  sécurise la démo.
 
 ### 5.3 Si c'était à refaire / améliorations possibles
 

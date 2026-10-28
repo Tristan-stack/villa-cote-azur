@@ -1,0 +1,4 @@
+# Dépendances de production, versions figées (même résultat à chaque build)
+fastapi==0.162.0
+uvicorn==0.54.0
+psycopg[binary]==3.3.6

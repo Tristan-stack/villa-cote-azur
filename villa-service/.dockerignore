@@ -1,0 +1,12 @@
+# Fichiers exclus du contexte de build (le dossier envoyé au démon Docker).
+# Le dossier tests/ est conservé : le stage « test » du Dockerfile en a besoin.
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+.env
+.git
+Dockerfile
+.dockerignore
+*.md

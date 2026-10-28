@@ -1,0 +1,17 @@
+<%- include('partials/header', { title: 'Connexion' }) %>
+<section class="card narrow">
+  <h1>Connexion</h1>
+  <% if (error) { %><p class="notice error"><%= error %></p><% } %>
+  <form method="post" action="/login">
+    <input type="hidden" name="next" value="<%= next %>">
+    <label>Email
+      <input type="email" name="email" value="<%= email %>" required autofocus>
+    </label>
+    <label>Mot de passe
+      <input type="password" name="password" required>
+    </label>
+    <button class="button" type="submit">Se connecter</button>
+  </form>
+  <p>Pas encore de compte ? <a href="/register">Créer un compte</a></p>
+</section>
+<%- include('partials/footer') %>

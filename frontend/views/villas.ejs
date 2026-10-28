@@ -1,0 +1,30 @@
+<%- include('partials/header', { title: 'Nos villas' }) %>
+<h1>Nos villas</h1>
+<form method="get" action="/villas" class="filters">
+  <label>Ville
+    <select name="city">
+      <option value="">Toutes les villes</option>
+      <% cities.forEach((c) => { %>
+        <option value="<%= c %>" <%= c === city ? 'selected' : '' %>><%= c %></option>
+      <% }) %>
+    </select>
+  </label>
+  <button class="button small" type="submit">Filtrer</button>
+</form>
+<% if (villas.length === 0) { %><p>Aucune villa pour cette ville.</p><% } %>
+<div class="grid">
+  <% villas.forEach((villa) => { %>
+    <article class="villa-card">
+      <div class="villa-visual city-<%= cityClass(villa.city) %>"><span><%= villa.city %></span></div>
+      <div class="villa-body">
+        <h2><%= villa.name %></h2>
+        <p class="meta">
+          <%= villa.capacity %> pers. · <%= villa.bedrooms %> ch.<%= villa.has_pool ? ' · piscine' : '' %><%= villa.sea_view ? ' · vue mer' : '' %>
+        </p>
+        <p class="price"><strong><%= formatPrice(villa.price_per_night) %></strong> / nuit</p>
+        <a class="button small" href="/villas/<%= villa.id %>">Voir et réserver</a>
+      </div>
+    </article>
+  <% }) %>
+</div>
+<%- include('partials/footer') %>

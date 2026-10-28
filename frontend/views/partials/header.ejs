@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= typeof title !== 'undefined' ? title + ' · ' : '' %>Villa sur la Côte d'Azur</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">🌴 Villa sur la Côte d'Azur</a>
+    <nav>
+      <% if (user) { %>
+        <a href="/villas">Villas</a>
+        <a href="/bookings">Mes réservations</a>
+        <% if (user.role === 'admin') { %><a href="/admin/users">Administration</a><% } %>
+        <a href="/account">Mon compte</a>
+        <form method="post" action="/logout" class="inline"><button class="link" type="submit">Déconnexion</button></form>
+      <% } else { %>
+        <a href="/login">Connexion</a>
+        <a href="/register" class="button small">Créer un compte</a>
+      <% } %>
+    </nav>
+  </header>
+  <main>
+    <% if (message) { %><p class="notice success"><%= message %></p><% } %>

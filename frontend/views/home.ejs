@@ -1,0 +1,28 @@
+<%- include('partials/header', { title: 'Accueil' }) %>
+<section class="hero">
+  <h1>Des villas d'exception sur la Côte d'Azur</h1>
+  <p>Nice, Cannes, Antibes, Saint-Tropez… Choisissez votre villa avec piscine ou vue sur la mer
+    et réservez vos dates en quelques clics.</p>
+  <% if (user) { %>
+    <a class="button" href="/villas">Voir les villas</a>
+  <% } else { %>
+    <a class="button" href="/register">Créer un compte</a>
+    <a class="button secondary" href="/login">Se connecter</a>
+    <p class="hero-hint">Le catalogue et les réservations sont réservés aux membres connectés.</p>
+  <% } %>
+</section>
+<section class="features">
+  <article>
+    <h2>🏖️ Bord de mer</h2>
+    <p>Des villas à quelques minutes des plus belles plages de la Riviera.</p>
+  </article>
+  <article>
+    <h2>🏊 Piscines privées</h2>
+    <p>La plupart de nos villas disposent d'une piscine privée et d'un jardin.</p>
+  </article>
+  <article>
+    <h2>📅 Réservation simple</h2>
+    <p>Choisissez vos dates : les périodes déjà réservées sont indiquées sur chaque villa.</p>
+  </article>
+</section>
+<%- include('partials/footer') %>

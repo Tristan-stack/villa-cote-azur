@@ -1,0 +1,12 @@
+<%- include('partials/header', { title: 'Mon compte' }) %>
+<section class="card narrow">
+  <h1>Mon compte</h1>
+  <p><strong>Email :</strong> <%= user.email %></p>
+  <p><strong>Type de compte :</strong> <%= user.role === 'admin' ? 'administrateur' : 'standard' %></p>
+  <h2>Supprimer mon compte</h2>
+  <p>Cette action est définitive : votre compte et toutes vos réservations seront supprimés.</p>
+  <form method="post" action="/account/delete" onsubmit="return confirm('Supprimer définitivement votre compte ?')">
+    <button class="button danger" type="submit">Supprimer mon compte</button>
+  </form>
+</section>
+<%- include('partials/footer') %>

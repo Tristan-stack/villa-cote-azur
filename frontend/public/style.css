@@ -1,0 +1,190 @@
+/* Villa sur la Côte d'Azur : feuille de style (palette bleu azur / sable) */
+:root {
+  --azur: #0077b6;
+  --azur-dark: #023e8a;
+  --sea: #48cae4;
+  --sand: #fdf6e9;
+  --text: #1d2b3a;
+  --muted: #64748b;
+  --danger: #c0392b;
+  --success: #2e7d32;
+  --radius: 14px;
+  --shadow: 0 4px 16px rgba(2, 62, 138, 0.08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: var(--sand);
+  line-height: 1.5;
+}
+
+a { color: var(--azur); }
+h1, h2, h3 { line-height: 1.2; }
+
+/* ---- En-tête et pied de page ---- */
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(90deg, var(--azur-dark), var(--azur));
+}
+.site-header a, .site-header .link { color: #fff; text-decoration: none; font-weight: 500; }
+.site-header a:hover, .site-header .link:hover { text-decoration: underline; }
+.brand { font-size: 1.3rem; font-weight: 700 !important; }
+nav { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem; }
+.site-header .button { background: #fff; color: var(--azur-dark); }
+
+main { flex: 1; width: min(1100px, 100% - 2rem); margin: 2rem auto; }
+
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: #fff;
+  border-top: 1px solid #ece4d4;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.env { padding: 0.15rem 0.7rem; border-radius: 999px; font-weight: 700; background: #e0f2fe; color: var(--azur-dark); }
+.env-uat { background: #fff4d6; color: #8a6100; }
+.env-prod { background: #fde2e1; color: var(--danger); }
+
+/* ---- Boutons et formulaires ---- */
+.button {
+  display: inline-block;
+  padding: 0.65rem 1.3rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--azur);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.button:hover { background: var(--azur-dark); }
+.button.secondary { background: #fff; color: var(--azur); border: 2px solid #fff; }
+.button.small { padding: 0.4rem 0.95rem; font-size: 0.9rem; }
+.button.danger { background: var(--danger); }
+.button.danger:hover { background: #962d22; }
+.link { background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+.inline { display: inline; margin: 0; }
+
+form label { display: block; margin-bottom: 1rem; font-weight: 600; }
+input, select {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #cfd8e3;
+  border-radius: 8px;
+  font: inherit;
+  background: #fff;
+}
+input:focus, select:focus { outline: 2px solid var(--sea); border-color: var(--azur); }
+
+.notice { padding: 0.8rem 1rem; border-radius: 8px; }
+.notice.error { background: #fde2e1; color: var(--danger); }
+.notice.success { background: #dcfce7; color: var(--success); }
+.hint { color: var(--muted); font-size: 0.9rem; font-weight: 400; }
+
+/* ---- Cartes ---- */
+.card, .features article {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+.card { margin-top: 1.5rem; }
+.narrow { max-width: 460px; margin-inline: auto; }
+.center { text-align: center; }
+.error-code { font-size: 3.5rem; font-weight: 800; color: var(--azur); margin: 0; }
+
+/* ---- Accueil ---- */
+.hero {
+  text-align: center;
+  padding: 4.5rem 1.5rem;
+  border-radius: var(--radius);
+  color: #fff;
+  background:
+    linear-gradient(160deg, rgba(2, 62, 138, 0.88), rgba(0, 180, 216, 0.7)),
+    linear-gradient(0deg, #f4d58d 0 22%, #48cae4 22%);
+}
+.hero h1 { margin-top: 0; font-size: clamp(1.8rem, 4vw, 2.8rem); }
+.hero p { max-width: 640px; margin: 0 auto 1.5rem; font-size: 1.1rem; }
+.hero .button.secondary { margin-left: 0.5rem; }
+.hero-hint { margin-top: 1.25rem !important; font-size: 0.95rem !important; color: #e0f2fe; }
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.features h2 { font-size: 1.15rem; margin-top: 0; }
+
+/* ---- Villas ---- */
+.filters { display: flex; align-items: end; gap: 1rem; margin-bottom: 1.5rem; }
+.filters label { margin: 0; min-width: 220px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.25rem; }
+.villa-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.villa-body { padding: 1rem 1.25rem 1.25rem; }
+.villa-body h2 { font-size: 1.15rem; margin: 0 0 0.25rem; }
+.meta { color: var(--muted); margin: 0.25rem 0; }
+.price { font-size: 1.05rem; }
+.villa-visual {
+  display: flex;
+  align-items: end;
+  height: 150px;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  font-weight: 700;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  background: linear-gradient(160deg, var(--sea), var(--azur));
+}
+.villa-visual.large { height: 280px; border-radius: var(--radius); font-size: 1.4rem; }
+.city-nice { background: linear-gradient(160deg, #90e0ef, #0077b6); }
+.city-cannes { background: linear-gradient(160deg, #ffd6a5, #e76f51); }
+.city-antibes { background: linear-gradient(160deg, #b7e4c7, #2d6a4f); }
+.city-sainttropez { background: linear-gradient(160deg, #ffe066, #f08c00); }
+.city-menton { background: linear-gradient(160deg, #fff3b0, #e09f3e); }
+.city-eze { background: linear-gradient(160deg, #cdb4db, #5a189a); }
+.villa-detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2rem; align-items: start; }
+.villa-detail h1 { margin-top: 0; }
+.booking-form { display: flex; flex-wrap: wrap; align-items: end; gap: 1rem; }
+.booking-form label { flex: 1; min-width: 180px; }
+.booking-form .button { margin-bottom: 1rem; }
+.periods { padding-left: 1.2rem; }
+
+/* ---- Tableaux ---- */
+.table-wrapper { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.table th, .table td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #eef2f6; }
+.table th { background: #f1f7fb; }
+.table form { margin: 0; }
+.badge { padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.85rem; background: #e0f2fe; color: var(--azur-dark); }
+.badge-admin { background: #fde2e1; color: var(--danger); }
+
+@media (max-width: 720px) {
+  .site-header, .site-footer { padding: 1rem; }
+  .villa-detail { grid-template-columns: 1fr; }
+  .hero .button.secondary { margin: 0.75rem 0 0; }
+}

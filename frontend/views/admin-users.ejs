@@ -1,0 +1,31 @@
+<%- include('partials/header', { title: 'Administration' }) %>
+<h1>Administration des comptes</h1>
+<% if (error) { %><p class="notice error"><%= error %></p><% } %>
+<div class="table-wrapper">
+  <table class="table">
+    <thead>
+      <tr><th>#</th><th>Email</th><th>Type</th><th>Créé le</th><th></th></tr>
+    </thead>
+    <tbody>
+      <% users.forEach((u) => { %>
+        <tr>
+          <td><%= u.id %></td>
+          <td><%= u.email %></td>
+          <td><span class="badge badge-<%= u.role %>"><%= u.role %></span></td>
+          <td><%= new Date(u.createdAt).toLocaleDateString('fr-FR') %></td>
+          <td>
+            <% if (u.role === 'standard') { %>
+              <form method="post" action="/admin/users/<%= u.id %>/delete" onsubmit="return confirm('Supprimer ce compte et ses réservations ?')">
+                <button class="button small danger" type="submit">Supprimer</button>
+              </form>
+            <% } else { %>
+              <span class="hint">protégé</span>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<p class="hint">Un administrateur peut supprimer les comptes standard, mais pas les autres administrateurs.</p>
+<%- include('partials/footer') %>

@@ -1,0 +1,37 @@
+<%- include('partials/header', { title: villa.name }) %>
+<p><a href="/villas">← Toutes les villas</a></p>
+<article class="villa-detail">
+  <div class="villa-visual large city-<%= cityClass(villa.city) %>"><span><%= villa.city %></span></div>
+  <div>
+    <h1><%= villa.name %></h1>
+    <p class="meta">
+      📍 <%= villa.city %> · <%= villa.capacity %> personnes · <%= villa.bedrooms %> chambres<%= villa.has_pool ? ' · 🏊 piscine' : '' %><%= villa.sea_view ? ' · 🌊 vue mer' : '' %>
+    </p>
+    <p><%= villa.description %></p>
+    <p class="price"><strong><%= formatPrice(villa.price_per_night) %></strong> / nuit</p>
+  </div>
+</article>
+<section class="card">
+  <h2>Réserver cette villa</h2>
+  <% if (error) { %><p class="notice error"><%= error %></p><% } %>
+  <form method="post" action="/villas/<%= villa.id %>/book" class="booking-form">
+    <label>Arrivée
+      <input type="date" name="start_date" min="<%= minDate %>" value="<%= form.start_date || '' %>" required>
+    </label>
+    <label>Départ
+      <input type="date" name="end_date" min="<%= minDate %>" value="<%= form.end_date || '' %>" required>
+    </label>
+    <button class="button" type="submit">Réserver</button>
+  </form>
+  <h3>Dates déjà réservées</h3>
+  <% if (periods.length === 0) { %>
+    <p class="hint">Aucune réservation à venir : toutes les dates sont libres.</p>
+  <% } else { %>
+    <ul class="periods">
+      <% periods.forEach((p) => { %>
+        <li>du <%= formatDate(p.start_date) %> au <%= formatDate(p.end_date) %></li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+<%- include('partials/footer') %>

@@ -1,0 +1,16 @@
+<%- include('partials/header', { title: 'Créer un compte' }) %>
+<section class="card narrow">
+  <h1>Créer un compte</h1>
+  <% if (error) { %><p class="notice error"><%= error %></p><% } %>
+  <form method="post" action="/register">
+    <label>Email
+      <input type="email" name="email" value="<%= email %>" required autofocus>
+    </label>
+    <label>Mot de passe <span class="hint">(8 caractères minimum)</span>
+      <input type="password" name="password" minlength="8" maxlength="72" required>
+    </label>
+    <button class="button" type="submit">Créer mon compte</button>
+  </form>
+  <p>Déjà inscrit ? <a href="/login">Se connecter</a></p>
+</section>
+<%- include('partials/footer') %>

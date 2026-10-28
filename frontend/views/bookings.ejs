@@ -1,0 +1,30 @@
+<%- include('partials/header', { title: 'Mes réservations' }) %>
+<h1>Mes réservations</h1>
+<% if (bookings.length === 0) { %>
+  <p>Vous n'avez pas encore de réservation. <a href="/villas">Découvrir les villas</a></p>
+<% } else { %>
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr><th>Villa</th><th>Arrivée</th><th>Départ</th><th>Nuits</th><th>Total</th><th></th></tr>
+      </thead>
+      <tbody>
+        <% bookings.forEach((b) => { %>
+          <tr>
+            <td><%= b.villa ? b.villa.name + ' (' + b.villa.city + ')' : 'Villa n°' + b.villa_id %></td>
+            <td><%= formatDate(b.start_date) %></td>
+            <td><%= formatDate(b.end_date) %></td>
+            <td><%= b.nights %></td>
+            <td><%= b.total !== null ? formatPrice(b.total) : '—' %></td>
+            <td>
+              <form method="post" action="/bookings/<%= b.id %>/cancel" onsubmit="return confirm('Annuler cette réservation ?')">
+                <button class="button small danger" type="submit">Annuler</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+<%- include('partials/footer') %>

@@ -1,25 +1,34 @@
 <%- include('partials/header', { title: 'Administration' }) %>
-<h1>Administration des comptes</h1>
-<% if (error) { %><p class="notice error"><%= error %></p><% } %>
-<div class="table-wrapper">
+<% const admins = users.filter((u) => u.role === 'admin').length; %>
+<section class="page-head">
+  <p class="eyebrow">Back-office</p>
+  <h1 class="page-title">Administration <em>des comptes</em></h1>
+</section>
+<dl class="stats">
+  <div><dt>Comptes</dt><dd><%= users.length %></dd></div>
+  <div><dt>Standard</dt><dd><%= users.length - admins %></dd></div>
+  <div><dt>Administrateurs</dt><dd><%= admins %></dd></div>
+</dl>
+<% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
+<div class="table-wrap">
   <table class="table">
     <thead>
-      <tr><th>#</th><th>Email</th><th>Type</th><th>Créé le</th><th></th></tr>
+      <tr><th>#</th><th>Email</th><th>Type</th><th>Inscrit le</th><th><span class="sr-only">Actions</span></th></tr>
     </thead>
     <tbody>
       <% users.forEach((u) => { %>
-        <tr>
+        <tr data-user-id="<%= u.id %>" data-user-email="<%= u.email %>">
           <td><%= u.id %></td>
           <td><%= u.email %></td>
-          <td><span class="badge badge-<%= u.role %>"><%= u.role %></span></td>
+          <td><span class="badge badge--<%= u.role %>"><%= u.role %></span></td>
           <td><%= new Date(u.createdAt).toLocaleDateString('fr-FR') %></td>
-          <td>
+          <td class="table__actions">
             <% if (u.role === 'standard') { %>
               <form method="post" action="/admin/users/<%= u.id %>/delete" onsubmit="return confirm('Supprimer ce compte et ses réservations ?')">
-                <button class="button small danger" type="submit">Supprimer</button>
+                <button class="btn btn--danger btn--small" type="submit">Supprimer</button>
               </form>
             <% } else { %>
-              <span class="hint">protégé</span>
+              <span class="muted">protégé</span>
             <% } %>
           </td>
         </tr>
@@ -27,5 +36,5 @@
     </tbody>
   </table>
 </div>
-<p class="hint">Un administrateur peut supprimer les comptes standard, mais pas les autres administrateurs.</p>
+<p class="muted">Un administrateur peut supprimer les comptes standard, mais pas les autres administrateurs.</p>
 <%- include('partials/footer') %>

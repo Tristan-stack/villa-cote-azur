@@ -37,6 +37,27 @@ describe('pages publiques', () => {
   test('une page inconnue renvoie 404', async () => {
     assert.equal((await request(app).get('/nexiste-pas')).status, 404);
   });
+
+  test("l'accueil présente une sélection de villas", async () => {
+    const res = await request(app).get('/');
+    assert.match(res.text, /Notre sélection/);
+    assert.match(res.text, /Villa Test/);
+  });
+
+  test("l'accueil reste disponible si le catalogue ne répond pas", async () => {
+    api.listVillas = async () => {
+      throw new Error('villa-service injoignable');
+    };
+    const res = await request(app).get('/');
+    assert.equal(res.status, 200);
+    assert.doesNotMatch(res.text, /Notre sélection/);
+  });
+
+  test('les polices sont servies par le frontend (aucun service externe)', async () => {
+    const res = await request(app).get('/fonts/fraunces/fraunces-latin-wght-normal.woff2');
+    assert.equal(res.status, 200);
+    assert.match(res.headers['cache-control'], /immutable/);
+  });
 });
 
 describe("contrôle d'accès", () => {

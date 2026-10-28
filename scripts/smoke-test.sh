@@ -54,7 +54,8 @@ http() {
 }
 page_contains() { if grep -q "$2" "$WORK/page.html"; then ok "$1"; else ko "$1" "texte « $2 » absent"; fi; }
 # Identifiant d'un compte, lu dans le tableau de la page d'administration
-user_id() { grep -B1 "<td>$1</td>" "$WORK/page.html" | head -1 | grep -o '[0-9]\+'; }
+# (chaque ligne porte data-user-id="…" data-user-email="…")
+user_id() { grep -F "data-user-email=\"$1\"" "$WORK/page.html" | grep -o 'data-user-id="[0-9]*"' | grep -o '[0-9]\+'; }
 
 ANON="$WORK/anonyme.txt"
 USER="$WORK/utilisateur.txt"

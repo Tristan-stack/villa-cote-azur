@@ -1,16 +1,23 @@
-<%- include('partials/header', { title: 'Créer un compte' }) %>
-<section class="card narrow">
-  <h1>Créer un compte</h1>
-  <% if (error) { %><p class="notice error"><%= error %></p><% } %>
-  <form method="post" action="/register">
-    <label>Email
-      <input type="email" name="email" value="<%= email %>" required autofocus>
-    </label>
-    <label>Mot de passe <span class="hint">(8 caractères minimum)</span>
-      <input type="password" name="password" minlength="8" maxlength="72" required>
-    </label>
-    <button class="button" type="submit">Créer mon compte</button>
-  </form>
-  <p>Déjà inscrit ? <a href="/login">Se connecter</a></p>
-</section>
+<%- include('partials/header', { title: 'Créer un compte', bodyClass: 'page-auth' }) %>
+<div class="auth">
+  <aside class="auth__visual">
+    <%- include('partials/postcard', { villa: showcaseVilla, uid: 'auth', className: 'postcard--live', aspect: 'xMaxYMid' }) %>
+    <blockquote class="auth__quote">« Six villas, six ambiances,<br>une seule Riviera. »</blockquote>
+  </aside>
+  <section class="auth__panel">
+    <p class="eyebrow">Bienvenue</p>
+    <h1 class="page-title">Créer un compte</h1>
+    <% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
+    <form method="post" action="/register" class="form">
+      <label>Email
+        <input type="email" name="email" value="<%= email %>" autocomplete="email" required autofocus>
+      </label>
+      <label>Mot de passe <span class="label-hint">8 caractères minimum</span>
+        <input type="password" name="password" minlength="8" maxlength="72" autocomplete="new-password" required>
+      </label>
+      <button class="btn btn--block" type="submit">Créer mon compte</button>
+    </form>
+    <p class="auth__switch">Déjà inscrit ? <a href="/login">Se connecter</a></p>
+  </section>
+</div>
 <%- include('partials/footer') %>

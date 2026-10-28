@@ -1,0 +1,18 @@
+<article class="villa-card" data-reveal>
+  <a class="villa-card__link" href="/villas/<%= villa.id %>">
+    <div class="villa-card__media">
+      <%- include('postcard', { villa, uid: 'card-' + villa.id }) %>
+      <span class="villa-card__city"><%= villa.city %></span>
+    </div>
+    <div class="villa-card__body">
+      <h3 class="villa-card__name"><%= villa.name %></h3>
+      <p class="villa-card__meta">
+        <%= villa.capacity %> voyageurs · <%= villa.bedrooms %> chambres<%= villa.has_pool ? ' · piscine' : '' %><%= villa.sea_view ? ' · vue mer' : '' %>
+      </p>
+      <p class="villa-card__price">
+        <strong><%= formatPrice(villa.price_per_night) %></strong> / nuit
+        <span class="villa-card__arrow" aria-hidden="true">→</span>
+      </p>
+    </div>
+  </a>
+</article>

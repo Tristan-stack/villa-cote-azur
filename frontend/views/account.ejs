@@ -1,12 +1,25 @@
 <%- include('partials/header', { title: 'Mon compte' }) %>
-<section class="card narrow">
-  <h1>Mon compte</h1>
-  <p><strong>Email :</strong> <%= user.email %></p>
-  <p><strong>Type de compte :</strong> <%= user.role === 'admin' ? 'administrateur' : 'standard' %></p>
-  <h2>Supprimer mon compte</h2>
-  <p>Cette action est définitive : votre compte et toutes vos réservations seront supprimés.</p>
-  <form method="post" action="/account/delete" onsubmit="return confirm('Supprimer définitivement votre compte ?')">
-    <button class="button danger" type="submit">Supprimer mon compte</button>
-  </form>
+<section class="page-head">
+  <p class="eyebrow">Votre espace</p>
+  <h1 class="page-title">Mon <em>compte</em></h1>
 </section>
+<div class="panels">
+  <section class="panel">
+    <div class="avatar" aria-hidden="true"><%= user.email.charAt(0).toUpperCase() %></div>
+    <dl class="profile">
+      <div><dt>Email</dt><dd><%= user.email %></dd></div>
+      <div>
+        <dt>Type de compte</dt>
+        <dd><span class="badge badge--<%= user.role %>"><%= user.role === 'admin' ? 'administrateur' : 'standard' %></span></dd>
+      </div>
+    </dl>
+  </section>
+  <section class="panel panel--danger">
+    <h2 class="block-title">Supprimer mon compte</h2>
+    <p>Cette action est définitive : votre compte et toutes vos réservations seront supprimés.</p>
+    <form method="post" action="/account/delete" onsubmit="return confirm('Supprimer définitivement votre compte ?')">
+      <button class="btn btn--danger" type="submit">Supprimer mon compte</button>
+    </form>
+  </section>
+</div>
 <%- include('partials/footer') %>

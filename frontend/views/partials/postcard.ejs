@@ -1,0 +1,79 @@
+<%
+  // Illustration d'une villa, générée en SVG : ciel et soleil aux couleurs de la ville,
+  // mer et palmier si la villa a vue sur la mer (pins sinon), piscine si elle en a une.
+  // « uid » rend les identifiants des dégradés uniques quand plusieurs cartes sont affichées.
+  const p = paletteFor(villa.city);
+  const id = 'pc-' + uid;
+  const align = typeof aspect !== 'undefined' ? aspect : 'xMidYMid';
+%>
+<svg class="postcard <%= typeof className !== 'undefined' ? className : '' %>" viewBox="0 0 480 360" preserveAspectRatio="<%= align %> slice" role="img" aria-label="Illustration : <%= villa.name %>, <%= villa.city %>">
+  <defs>
+    <linearGradient id="<%= id %>-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="<%= p.skyTop %>"/>
+      <stop offset="1" stop-color="<%= p.skyBottom %>"/>
+    </linearGradient>
+    <radialGradient id="<%= id %>-glow">
+      <stop offset="0" stop-color="<%= p.sun %>" stop-opacity=".85"/>
+      <stop offset="1" stop-color="<%= p.sun %>" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="<%= id %>-sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="<%= p.seaTop %>"/>
+      <stop offset="1" stop-color="<%= p.seaBottom %>"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="360" fill="url(#<%= id %>-sky)"/>
+  <circle class="pc-glow" cx="<%= p.sunX %>" cy="<%= p.sunY %>" r="120" fill="url(#<%= id %>-glow)"/>
+  <circle class="pc-sun" cx="<%= p.sunX %>" cy="<%= p.sunY %>" r="40" fill="<%= p.sun %>"/>
+  <g class="pc-birds" fill="none" stroke="#1b2d40" stroke-opacity=".45" stroke-width="2" stroke-linecap="round">
+    <path d="M168 70q7-7 14 0q7-7 14 0"/>
+    <path d="M206 92q5-5 10 0q5-5 10 0"/>
+  </g>
+  <path d="M0 214C70 176 128 198 190 186C258 172 330 148 400 168C440 178 462 176 480 170V230H0Z" fill="<%= p.hillFar %>"/>
+  <% if (villa.sea_view) { %>
+    <rect y="210" width="480" height="150" fill="url(#<%= id %>-sea)"/>
+    <g class="pc-waves" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-linecap="round">
+      <path d="M24 236q8-5 16 0t16 0"/>
+      <path d="M150 228q8-5 16 0t16 0t16 0"/>
+      <path d="M300 240q8-5 16 0t16 0"/>
+      <path d="M90 258q8-5 16 0t16 0t16 0"/>
+      <path d="M392 230q8-5 16 0t16 0"/>
+    </g>
+  <% } else { %>
+    <path d="M0 252C88 206 170 236 250 216C330 196 410 226 480 206V360H0Z" fill="<%= p.hillNear %>"/>
+    <g fill="<%= p.tree %>">
+      <path d="M72 246v26M160 238v24" stroke="<%= p.trunk %>" stroke-width="5"/>
+      <ellipse cx="72" cy="242" rx="34" ry="11"/>
+      <ellipse cx="160" cy="234" rx="28" ry="9"/>
+    </g>
+  <% } %>
+  <path d="M0 298C126 282 300 312 480 290V360H0Z" fill="<%= p.ground %>"/>
+  <g transform="translate(258 196)">
+    <rect x="0" y="46" width="150" height="62" fill="<%= p.wall %>"/>
+    <rect x="94" y="8" width="66" height="100" fill="<%= p.wall2 %>"/>
+    <% if (p.roofStyle === 'tile') { %>
+      <path d="M-8 47L46 26L102 47Z M88 9L127 -8L166 9Z" fill="<%= p.roof %>"/>
+    <% } else { %>
+      <path d="M-10 40h112v7h-112Z M88 2h78v7h-78Z" fill="<%= p.roof %>"/>
+    <% } %>
+    <g fill="<%= p.window %>">
+      <path d="M14 92V72a8 8 0 0 1 16 0v20Z M42 92V72a8 8 0 0 1 16 0v20Z M70 92V72a8 8 0 0 1 16 0v20Z"/>
+      <rect x="108" y="26" width="14" height="22" rx="2"/>
+      <rect x="132" y="26" width="14" height="22" rx="2"/>
+      <path d="M116 108V84a11 11 0 0 1 22 0v24Z"/>
+    </g>
+  </g>
+  <g fill="<%= p.tree %>">
+    <path d="M232 300C222 262 226 214 238 180C250 214 254 262 244 300Z"/>
+    <path d="M440 302C432 272 434 236 444 210C454 236 456 272 448 302Z"/>
+  </g>
+  <% if (villa.sea_view) { %>
+    <g fill="none" stroke-linecap="round">
+      <path d="M58 304C64 266 68 236 62 196" stroke="<%= p.trunk %>" stroke-width="7"/>
+      <path d="M62 196C40 186 24 190 10 206M62 196C50 172 30 166 16 172M62 196C72 168 92 162 108 168M62 196C88 184 104 194 114 208M62 196C60 174 68 156 80 148" stroke="<%= p.frond %>" stroke-width="6"/>
+    </g>
+  <% } %>
+  <% if (villa.has_pool) { %>
+    <rect x="96" y="314" width="190" height="30" rx="6" fill="<%= p.pool %>"/>
+    <path d="M112 325h46M176 333h56" stroke="#fff" stroke-opacity=".7" stroke-width="2.5" stroke-linecap="round"/>
+  <% } %>
+</svg>

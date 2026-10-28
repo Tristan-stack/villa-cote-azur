@@ -15,4 +15,9 @@ export default [
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },
+  {
+    // Script exécuté par le navigateur (et non par Node.js)
+    files: ['public/**/*.js'],
+    languageOptions: { sourceType: 'script', globals: globals.browser },
+  },
 ];

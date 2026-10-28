@@ -1,0 +1,17 @@
+# Fins de ligne : LF dans le dépôt ET dans les fichiers extraits.
+# Indispensable sous Windows (Git y active core.autocrlf=true par défaut) :
+# un script shell en CRLF plante dans un conteneur Linux (le \r est lu comme
+# faisant partie de la commande).
+* text=auto eol=lf
+
+# Scripts propres à Windows : CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Fichiers binaires : aucune conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.pdf binary

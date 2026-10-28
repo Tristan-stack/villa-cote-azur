@@ -149,10 +149,17 @@ jobs:
           name: sbom-${{ matrix.service }}
           path: sbom-${{ matrix.service }}.cdx.json
 
+      # En cas d'erreur, le message de Docker est repris dans une annotation visible
+      # directement dans l'interface GitHub (« ::error:: »)
       - name: Connexion au registre GHCR
         if: github.event_name == 'push'
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+            | docker login ghcr.io -u "${{ github.actor }}" --password-stdin 2>&1 | tee login.log \
+            || { echo "::error title=docker login::$(tail -n 3 login.log | tr '\n' ' ')"; exit 1; }
 
       - name: Publication de l'image
         if: github.event_name == 'push'
-        run: docker push "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}"
+        run: |
+          docker push "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}" 2>&1 | tee push.log \
+            || { echo "::error title=docker push::$(tail -n 3 push.log | tr '\n' ' ')"; exit 1; }

@@ -5,8 +5,8 @@
 #   docker compose up -d --build --wait
 #   bash scripts/smoke-test.sh
 #
-# Variables optionnelles : BASE_URL (défaut http://127.0.0.1:8081),
-# ADMIN_EMAIL et ADMIN_PASSWORD (défaut : valeurs de TEST du fichier .env).
+# Autre environnement : ENV_FILE=env/uat.env bash scripts/smoke-test.sh
+# (port du frontend et compte admin sont lus dans ce fichier de variables).
 # Utilisé aussi par la CI (job « e2e »). Code de sortie 1 si une vérification échoue.
 # =============================================================================
 set -uo pipefail
@@ -14,7 +14,15 @@ set -uo pipefail
 export MSYS_NO_PATHCONV=1
 cd "$(dirname "$0")/.." || exit 1
 
-BASE_URL="${BASE_URL:-http://127.0.0.1:8081}"
+# Fichier de variables de l'environnement testé (chemin relatif à la racine du dépôt)
+ENV_FILE="${ENV_FILE:-.env}"
+set -a
+# shellcheck source=/dev/null
+. "./$ENV_FILE"
+set +a
+dc() { docker compose --env-file "./$ENV_FILE" "$@"; }
+
+BASE_URL="${BASE_URL:-http://127.0.0.1:${FRONTEND_PORT:-8081}}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@villa.fr}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin1234}"
 WORK="$(mktemp -d)"
@@ -76,7 +84,7 @@ page_contains "prix total calculé (7 × 320 €)" "2[^0-9]*240 €"
 check "un compte standard n'accède pas à l'administration" "403 " "$(http "$USER" GET /admin/users)"
 
 echo "3. Frontend sans état : redémarrage sans perte de session"
-docker compose restart frontend >/dev/null 2>&1
+dc restart frontend >/dev/null 2>&1
 curl -s -o /dev/null --retry 30 --retry-connrefused --retry-all-errors --retry-delay 1 "$BASE_URL/health"
 check "toujours connecté après « docker compose restart frontend »" "200 " "$(http "$USER" GET /bookings)"
 
@@ -90,7 +98,7 @@ check "un admin ne peut pas supprimer un autre admin" "403 " "$(http "$ADMIN" PO
 check "un admin supprime le compte standard" "303 /admin/users?msg=user-deleted" \
   "$(http "$ADMIN" POST "/admin/users/$USER_ID/delete")"
 check "la session du compte supprimé ne fonctionne plus" "302 /login?next=%2Fbookings" "$(http "$USER" GET /bookings)"
-REMAINING="$(docker compose exec -T db psql -U postgres -d booking_db -tAc \
+REMAINING="$(dc exec -T db psql -U postgres -d booking_db -tAc \
   "SELECT count(*) FROM bookings WHERE user_id = $USER_ID" 2>/dev/null | tr -d '[:space:]')"
 check "ses réservations ont été supprimées dans booking_db" "0" "$REMAINING"
 
@@ -108,10 +116,10 @@ if curl -s -m 3 -o /dev/null "http://127.0.0.1:3001/health"; then
 else
   ok "auth-service injoignable depuis la machine hôte (aucun port publié)"
 fi
-DB_FROM_FRONTEND="$(docker compose exec -T frontend node -e \
+DB_FROM_FRONTEND="$(dc exec -T frontend node -e \
   "require('node:dns').lookup('db', (err) => console.log(err ? 'injoignable' : 'joignable'))" 2>/dev/null)"
 check "la base est injoignable depuis le frontend (réseau data)" "injoignable" "$DB_FROM_FRONTEND"
-INTERNET_FROM_BACKEND="$(docker compose exec -T villa-service python -c \
+INTERNET_FROM_BACKEND="$(dc exec -T villa-service python -c \
   "import urllib.request as u
 try:
     u.urlopen('http://example.com', timeout=3); print('accessible')

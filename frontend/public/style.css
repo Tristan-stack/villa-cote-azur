@@ -491,6 +491,8 @@ input:focus, select:focus { outline: none; border-color: var(--sea); box-shadow:
 }
 @media (max-width: 720px) {
   body { font-size: 1rem; }
+  /* le menu tient sur 2 ou 3 lignes : l'en-tête défile avec la page au lieu de rester fixé */
+  .site-header { position: relative; }
   .site-nav { gap: 0.6rem 1.1rem; font-size: 0.9rem; }
   .hero {
     padding-top: 10rem;

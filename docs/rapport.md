@@ -4,7 +4,27 @@ _Module « Dév avec Docker » — Master 2 — 2026_
 
 ## 1. Architecture logicielle
 
-_À rédiger (étapes 1 à 7)._
+### Données : une base par micro-service
+
+Un seul conteneur PostgreSQL 17 héberge **trois bases distinctes**, chacune avec son propre
+utilisateur SQL :
+
+| Base | Utilisateur | Service propriétaire |
+|---|---|---|
+| `auth_db` | `auth_user` | auth-service |
+| `villa_db` | `villa_user` | villa-service |
+| `booking_db` | `booking_user` | booking-service |
+
+Le script `db/init/01-init.sh` crée ces bases et ces utilisateurs au premier démarrage. Il retire
+aussi le droit de connexion par défaut (`REVOKE ALL ... FROM PUBLIC`). Un service ne peut donc
+ouvrir que sa propre base : c'est le principe du moindre privilège. Un service compromis n'expose
+que ses propres données. Les mots de passe sont fournis par variables d'environnement et ne sont
+jamais écrits dans le dépôt.
+
+Chaque service crée lui-même ses tables au démarrage. Aucune clé étrangère ne relie deux bases : la
+cohérence entre services passe par leurs API.
+
+_Services applicatifs : à rédiger (étapes 2 à 7)._
 
 ## 2. Dockerfiles et docker-compose.yml
 

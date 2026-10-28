@@ -24,7 +24,37 @@ jamais écrits dans le dépôt.
 Chaque service crée lui-même ses tables au démarrage. Aucune clé étrangère ne relie deux bases : la
 cohérence entre services passe par leurs API.
 
-_Services applicatifs : à rédiger (étapes 2 à 7)._
+### auth-service (Node.js 24, Express 5)
+
+Ce service gère les comptes, les sessions et les rôles. Il expose une API REST en JSON :
+
+| Méthode et route | Accès | Effet |
+|---|---|---|
+| `POST /auth/register` | public | crée un compte **standard** (201 ; 409 si l'email existe déjà) |
+| `POST /auth/login` | public | vérifie le mot de passe et crée une session, dont il renvoie le jeton |
+| `POST /auth/logout` | connecté | supprime la session |
+| `GET /auth/me` | connecté | renvoie l'utilisateur associé au jeton |
+| `DELETE /users/me` | connecté | supprime son propre compte |
+| `GET /users` | admin | liste les comptes |
+| `DELETE /users/:id` | admin | supprime un compte standard (403 si la cible est un admin) |
+| `GET /health` | — | sonde de santé pour Docker |
+
+**Sessions.** Une session est un jeton aléatoire de 256 bits, enregistré en base avec une date
+d'expiration. Le client le présente dans l'en-tête `Authorization: Bearer`. La déconnexion
+supprime la session, ce qui rend le jeton inutilisable.
+
+**Sécurité.**
+- Les mots de passe sont hachés avec bcrypt.
+- Les requêtes SQL sont paramétrées, ce qui empêche les injections.
+- L'inscription publique ne crée que des comptes standard.
+- Le premier administrateur est créé au démarrage à partir des variables `ADMIN_EMAIL` et
+  `ADMIN_PASSWORD`, propres à chaque environnement.
+
+**Tests.** Le code sépare les routes (`app.js`) de l'accès aux données (`repository.js`). Les
+17 tests unitaires (`node:test` + `supertest`) injectent un repository en mémoire : ils
+s'exécutent sans base de données.
+
+_Autres services : à rédiger (étapes 4 à 7)._
 
 ## 2. Dockerfiles et docker-compose.yml
 

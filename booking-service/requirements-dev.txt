@@ -1,0 +1,5 @@
+# Outils de test et de qualité : installés seulement dans le stage « test » du Dockerfile
+-r requirements.txt
+pytest==9.2.0
+httpx2==2.16.0
+ruff==0.17.3

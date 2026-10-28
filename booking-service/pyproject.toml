@@ -1,0 +1,13 @@
+# Configuration des outils (le service n'est pas un paquet : il est lancé par uvicorn)
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 110
+target-version = "py313"
+
+[tool.ruff.lint]
+# E/F : erreurs de base, I : ordre des imports, UP : syntaxe moderne, B : bugs fréquents
+select = ["E", "F", "I", "UP", "B"]

@@ -1,0 +1,183 @@
+---
+# =============================================================================
+# Villa sur la Côte d'Azur : toute l'application en une commande.
+#
+#   TEST (par défaut : fichier .env, images construites localement) :
+#     docker compose up -d --build
+#
+#   UAT / PROD (images publiées dans le registre GHCR par la CI) :
+#     docker compose --env-file env/prod.env pull
+#     docker compose --env-file env/prod.env up -d --no-build
+#
+#   Configuration réellement appliquée (variables remplacées) :
+#     docker compose config
+# =============================================================================
+name: villa-cote-azur
+
+# ---- Blocs réutilisables (ancres YAML) : les bonnes pratiques écrites une seule fois ----
+
+# Logs sur stdout/stderr, collectés par Docker, avec rotation des fichiers
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+# Étiquettes « nom de domaine inversé » : filtrer les ressources du projet
+#   docker ps --filter "label=com.villa-cote-azur.env=test"
+x-labels: &default-labels
+  com.villa-cote-azur.app: villa-cote-azur
+  com.villa-cote-azur.env: ${APP_ENV:-test}
+
+# Réglages communs aux 4 services applicatifs (réutilisés avec « <<: *app-defaults »)
+x-app-defaults: &app-defaults
+  restart: unless-stopped            # redémarre après un crash ou un reboot, sauf arrêt manuel
+  read_only: true                    # système de fichiers du conteneur en lecture seule
+  tmpfs:
+    - /tmp                           # seul dossier inscriptible, en mémoire
+  security_opt:
+    - no-new-privileges:true         # aucune élévation de privilèges possible (setuid…)
+  cap_drop:
+    - ALL                            # aucune « capability » Linux : les services n'en ont pas besoin
+  cpus: ${APP_CPUS:-0.5}             # limite CPU (cgroups)
+  mem_limit: ${APP_MEM_LIMIT:-256m}  # limite mémoire stricte : au-delà, le conteneur est arrêté
+  mem_reservation: 64m               # minimum garanti si la mémoire de l'hôte vient à manquer
+  logging: *default-logging
+  labels: *default-labels
+
+services:
+  # ---------------------------------------------------------------------------
+  # Base de données PostgreSQL : une base et un utilisateur SQL par micro-service
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:17.11-alpine3.24
+    restart: unless-stopped
+    environment:
+      # ${VAR:?message} : le lancement échoue si la variable n'est pas définie
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD manquant}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:?AUTH_DB_PASSWORD manquant}
+      VILLA_DB_PASSWORD: ${VILLA_DB_PASSWORD:?VILLA_DB_PASSWORD manquant}
+      BOOKING_DB_PASSWORD: ${BOOKING_DB_PASSWORD:?BOOKING_DB_PASSWORD manquant}
+    volumes:
+      - db-data:/var/lib/postgresql/data          # volume nommé : les données persistent
+      - ./db/init:/docker-entrypoint-initdb.d:ro  # script exécuté au 1er démarrage, lecture seule
+    networks:
+      - data                                      # joignable uniquement par les backends
+    # Aucun « ports: » : la base n'est pas joignable depuis l'extérieur
+    healthcheck:
+      # Test en TCP : « prêt » seulement une fois le script d'initialisation terminé
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    security_opt:
+      - no-new-privileges:true
+    cpus: ${DB_CPUS:-1}
+    mem_limit: ${DB_MEM_LIMIT:-512m}
+    mem_reservation: 128m
+    logging: *default-logging
+    labels: *default-labels
+
+  # ---------------------------------------------------------------------------
+  # auth-service (Node.js) : comptes, sessions, rôles
+  # ---------------------------------------------------------------------------
+  auth-service:
+    <<: *app-defaults
+    build:
+      context: ./auth-service
+      target: production                 # étape finale du Dockerfile multi-étapes
+    image: ${REGISTRY:-villa-cote-azur}/auth-service:${IMAGE_TAG:-local}
+    environment:
+      DATABASE_URL: postgresql://auth_user:${AUTH_DB_PASSWORD}@db:5432/auth_db
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?ADMIN_EMAIL manquant}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD manquant}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-24}
+    networks:
+      - backend                          # appelé par le frontend
+      - data                             # accède à sa base
+    depends_on:
+      db:
+        condition: service_healthy       # attend que PostgreSQL soit prêt
+
+  # ---------------------------------------------------------------------------
+  # villa-service (Python) : catalogue des villas
+  # ---------------------------------------------------------------------------
+  villa-service:
+    <<: *app-defaults
+    build:
+      context: ./villa-service
+      target: production
+    image: ${REGISTRY:-villa-cote-azur}/villa-service:${IMAGE_TAG:-local}
+    environment:
+      DATABASE_URL: postgresql://villa_user:${VILLA_DB_PASSWORD}@db:5432/villa_db
+    networks:
+      - backend
+      - data
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # booking-service (Python) : réservations
+  # ---------------------------------------------------------------------------
+  booking-service:
+    <<: *app-defaults
+    build:
+      context: ./booking-service
+      target: production
+    image: ${REGISTRY:-villa-cote-azur}/booking-service:${IMAGE_TAG:-local}
+    environment:
+      DATABASE_URL: postgresql://booking_user:${BOOKING_DB_PASSWORD}@db:5432/booking_db
+    networks:
+      - backend
+      - data
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # frontend (Node.js) : site web sans état, SEUL service joignable par les clients
+  # ---------------------------------------------------------------------------
+  frontend:
+    <<: *app-defaults
+    build:
+      context: ./frontend
+      target: production
+    image: ${REGISTRY:-villa-cote-azur}/frontend:${IMAGE_TAG:-local}
+    environment:
+      APP_ENV: ${APP_ENV:-test}
+      # Le DNS interne de Docker traduit le nom du service en adresse IP du conteneur
+      AUTH_URL: http://auth-service:3001
+      VILLA_URL: http://villa-service:8001
+      BOOKING_URL: http://booking-service:8002
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-24}
+    ports:
+      - "${FRONTEND_PORT:-8081}:3000"    # SEUL port publié sur la machine hôte
+    networks:
+      - public                           # joignable par les clients
+      - backend                          # appelle les backends
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      villa-service:
+        condition: service_healthy
+      booking-service:
+        condition: service_healthy
+
+# -----------------------------------------------------------------------------
+# Réseaux : 3 zones isolées
+#   public  : frontend uniquement (port publié, accès sortant)
+#   backend : frontend ↔ backends (internal : aucune route vers l'extérieur)
+#   data    : backends ↔ base (le frontend n'y est pas : il ne peut pas lire la base)
+# -----------------------------------------------------------------------------
+networks:
+  public: {}
+  backend:
+    internal: true
+  data:
+    internal: true
+
+volumes:
+  db-data: {}

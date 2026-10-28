@@ -55,4 +55,13 @@ _À rédiger._
 
 ## 5. Rétrospective
 
-_À rédiger à la fin du projet._
+### Difficultés rencontrées
+
+- **Conflits de ports sur le poste de développement.** Quatre PostgreSQL installés sous Windows
+  occupaient les ports 5432 à 5435, et le conteneur d'un autre TP occupait le 8080. Le message
+  d'erreur était trompeur : « accès interdit » au lieu de « port déjà utilisé », car PostgreSQL sous
+  Windows réserve son port en mode exclusif. Solution : publier la base de dev sur un port libre
+  (15432). Dans le `docker-compose.yml`, la base ne publie aucun port, ce qui fait disparaître ce
+  type de conflit.
+
+_Suite à rédiger à la fin du projet._

@@ -1,0 +1,158 @@
+# =============================================================================
+# Pipeline CI/CD de Villa sur la Côte d'Azur
+#
+#   1. tests       (×4 services) lint du Dockerfile, puis lint du code + tests unitaires
+#                  (stage « test » du Dockerfile)
+#   2. e2e         application complète lancée avec docker compose + test de bout en bout
+#   3. publication (×4 services) image de production taguée (nom du tag git ou SHA du commit),
+#                  scan de vulnérabilités, inventaire (SBOM), puis push vers GHCR
+#
+# Chaque étape doit réussir pour passer à la suivante : une erreur arrête le pipeline.
+# =============================================================================
+name: CI/CD
+
+on:
+  push:
+    branches: ["**"]   # chaque commit poussé, sur toutes les branches
+    tags: ["**"]       # chaque tag poussé (ex. v1.0.0)
+  schedule:
+    - cron: "0 6 * * 1" # chaque lundi à 6 h UTC : reconstruction et scan (nouvelles failles ?)
+  workflow_dispatch:    # lancement manuel depuis l'onglet « Actions »
+
+# Un nouveau push sur la même branche annule le pipeline précédent, devenu inutile
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Droits minimaux par défaut ; seul le job de publication peut écrire dans le registre
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. Tests unitaires de chaque micro-service
+  # ---------------------------------------------------------------------------
+  tests:
+    name: Tests ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true   # un service en échec annule immédiatement les autres
+      matrix:
+        service: [auth-service, villa-service, booking-service, frontend]
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v7
+
+      - name: Lint du Dockerfile (hadolint)
+        uses: hadolint/hadolint-action@v3.5.0
+        with:
+          dockerfile: ${{ matrix.service }}/Dockerfile
+
+      - name: Lint du code et tests unitaires (stage « test » du Dockerfile)
+        run: docker build --progress=plain --target test ./${{ matrix.service }}
+
+  # ---------------------------------------------------------------------------
+  # 2. Test de bout en bout : toute l'application, comme en démo
+  # ---------------------------------------------------------------------------
+  e2e:
+    name: Test de bout en bout (docker compose)
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v7
+
+      - name: Lancement de l'application (environnement TEST)
+        run: docker compose up -d --build --wait --wait-timeout 300
+
+      - name: Scénario de bout en bout
+        run: bash scripts/smoke-test.sh
+
+      - name: Logs des conteneurs (en cas d'échec)
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Arrêt et suppression des conteneurs et volumes
+        if: always()
+        run: docker compose down -v
+
+  # ---------------------------------------------------------------------------
+  # 3. Construction, scan et publication de l'image de chaque micro-service
+  # ---------------------------------------------------------------------------
+  publication:
+    name: Image ${{ matrix.service }}
+    needs: e2e
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # nécessaire pour pousser dans GHCR (ghcr.io)
+    strategy:
+      fail-fast: true
+      matrix:
+        service: [auth-service, villa-service, booking-service, frontend]
+    env:
+      # Miroir de la base de vulnérabilités de Trivy, au cas où ghcr.io limite les téléchargements
+      TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db,ghcr.io/aquasecurity/trivy-db
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v7
+
+      - name: Nom et tag unique de l'image
+        id: meta
+        run: |
+          # GHCR impose un nom en minuscules : ghcr.io/<propriétaire>/<dépôt>/<service>
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}/${{ matrix.service }}"
+          # Tag unique : le nom du tag git si on pousse un tag, sinon le SHA court du commit
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            TAG="${GITHUB_REF_NAME//[^a-zA-Z0-9_.-]/-}"
+          else
+            TAG="${GITHUB_SHA::7}"
+          fi
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Image : $IMAGE:$TAG"
+
+      - name: Construction de l'image de production
+        run: |
+          docker build --target production \
+            --build-arg VERSION="${{ steps.meta.outputs.tag }}" \
+            --build-arg REVISION="$GITHUB_SHA" \
+            --label org.opencontainers.image.created="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --tag "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}" \
+            ./${{ matrix.service }}
+
+      - name: Rapport de vulnérabilités (HIGH et CRITICAL, pour information)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
+          severity: HIGH,CRITICAL
+          exit-code: "0"
+
+      - name: Contrôle de sécurité (échec si faille CRITICAL corrigeable)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Inventaire des composants de l'image (SBOM CycloneDX)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}
+          format: cyclonedx
+          output: sbom-${{ matrix.service }}.cdx.json
+
+      - name: Archivage du SBOM
+        uses: actions/upload-artifact@v7
+        with:
+          name: sbom-${{ matrix.service }}
+          path: sbom-${{ matrix.service }}.cdx.json
+
+      - name: Connexion au registre GHCR
+        if: github.event_name == 'push'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Publication de l'image
+        if: github.event_name == 'push'
+        run: docker push "${{ steps.meta.outputs.image }}:${{ steps.meta.outputs.tag }}"

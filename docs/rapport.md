@@ -1,4 +1,4 @@
-# Rapport de projet — Azur Villas
+# Rapport de projet — Villa sur la Côte d'Azur
 
 _Module « Dév avec Docker » — Master 2 — 2026_
 

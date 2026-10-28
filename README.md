@@ -1,4 +1,4 @@
-# Azur Villas
+# Villa sur la Côte d'Azur
 
 Site de location de villas sur la Côte d'Azur, découpé en micro-services Docker.
 Projet du module « Dév avec Docker » (Master 2).

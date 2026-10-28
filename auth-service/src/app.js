@@ -113,7 +113,8 @@ export function createApp({ repo, sessionTtlHours = 24, hashRounds = 10 }) {
   });
 
   // Erreurs : JSON mal formé → 400 ; erreur imprévue → 500, sans détail technique pour le client
-  app.use((err, req, res, next) => {
+  // (4 paramètres obligatoires pour qu'Express le reconnaisse comme gestionnaire d'erreurs)
+  app.use((err, req, res, _next) => {
     const status = err.status ?? 500;
     if (status >= 500) console.error(err);
     res.status(status).json({ error: status >= 500 ? 'Erreur interne' : 'Requête invalide' });

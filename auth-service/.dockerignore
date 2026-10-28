@@ -1,0 +1,11 @@
+# Fichiers exclus du contexte de build (le dossier envoyé au démon Docker).
+# Contexte plus petit = build plus rapide, et rien d'inutile ou de secret dans l'image.
+# Le dossier test/ est conservé : le stage « test » du Dockerfile en a besoin.
+node_modules
+npm-debug.log*
+coverage
+.env
+.git
+Dockerfile
+.dockerignore
+*.md

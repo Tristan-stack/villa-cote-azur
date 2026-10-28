@@ -11,7 +11,8 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
-const pool = new pg.Pool({ connectionString: DATABASE_URL });
+// connectionTimeoutMillis : on échoue au bout de 10 s au lieu d'attendre indéfiniment
+const pool = new pg.Pool({ connectionString: DATABASE_URL, connectionTimeoutMillis: 10_000 });
 const repo = createPgRepository(pool);
 await repo.migrate();
 

@@ -29,8 +29,21 @@ const toUser = (row) =>
 // dans le SQL, ce qui empêche les injections SQL.
 export function createPgRepository(pool) {
   return {
+    // Plusieurs instances du service peuvent démarrer en même temps (docker compose
+    // up --scale) : le verrou « advisory » garantit qu'une seule crée les tables à la fois.
     async migrate() {
-      await pool.query(SCHEMA);
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+        await client.query('SELECT pg_advisory_xact_lock(1)');
+        await client.query(SCHEMA);
+        await client.query('COMMIT');
+      } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+      } finally {
+        client.release();
+      }
     },
 
     // Renvoie null si l'email est déjà pris (contrainte UNIQUE : code d'erreur 23505)

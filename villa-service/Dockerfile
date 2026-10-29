@@ -38,7 +38,7 @@ ARG VERSION=dev
 ARG REVISION=unknown
 LABEL org.opencontainers.image.title="villa-service" \
       org.opencontainers.image.description="Villa sur la Côte d'Azur : catalogue des villas" \
-      org.opencontainers.image.source="https://github.com/Tristan-stack/projet-docker" \
+      org.opencontainers.image.source="https://github.com/Tristan-stack/villa-cote-azur" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.revision="${REVISION}"
 # Utilisateur système dédié, sans shell ni dossier personnel

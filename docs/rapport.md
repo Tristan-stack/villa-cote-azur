@@ -1,7 +1,7 @@
 # Rapport de projet — Villa sur la Côte d'Azur
 
 _Module « Dév avec Docker » — Master 2 — octobre 2026_
-_Dépôt : https://github.com/Tristan-stack/projet-docker_
+_Dépôt : https://github.com/Tristan-stack/villa-cote-azur_
 
 **Sommaire**
 1. Architecture logicielle
@@ -380,7 +380,7 @@ Le pipeline [.github/workflows/ci.yml](../.github/workflows/ci.yml) est déclenc
       docker build --target production   (tag unique + labels OCI)
       Trivy : rapport HIGH/CRITICAL, puis échec si faille CRITICAL corrigeable
       Trivy : SBOM CycloneDX archivé comme artefact
-      docker push ghcr.io/tristan-stack/projet-docker/<service>:<tag>
+      docker push ghcr.io/tristan-stack/villa-cote-azur/<service>:<tag>
 ```
 
 - **Identifiant unique de l'image** : le nom du tag git si l'on pousse un tag (ex. `v0.1.0`),
@@ -400,7 +400,7 @@ Le pipeline [.github/workflows/ci.yml](../.github/workflows/ci.yml) est déclenc
 
 ### 3.3 Mise en place
 
-1. Création du dépôt public `Tristan-stack/projet-docker` et premier push.
+1. Création du dépôt public `Tristan-stack/villa-cote-azur` et premier push.
 2. Écriture du workflow ; vérification locale avec **actionlint** (linter de workflows GitHub) et
    **shellcheck** pour les scripts shell.
 3. Droits du `GITHUB_TOKEN` déclarés dans le workflow : `contents: read` par défaut,

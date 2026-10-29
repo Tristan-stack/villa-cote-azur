@@ -1,6 +1,6 @@
 # Villa sur la Côte d'Azur
 
-[![CI/CD](https://github.com/Tristan-stack/projet-docker/actions/workflows/ci.yml/badge.svg)](https://github.com/Tristan-stack/projet-docker/actions/workflows/ci.yml)
+[![CI/CD](https://github.com/Tristan-stack/villa-cote-azur/actions/workflows/ci.yml/badge.svg)](https://github.com/Tristan-stack/villa-cote-azur/actions/workflows/ci.yml)
 
 Site de location de villas sur la Côte d'Azur, découpé en micro-services Docker.
 Projet du module « Dév avec Docker » (Master 2).
@@ -125,7 +125,7 @@ enchaîne trois étapes :
 3. **publication** des images dans GHCR, avec un tag unique (nom du tag git ou SHA court du
    commit), après un scan de vulnérabilités Trivy et la génération d'un SBOM.
 
-Images publiées : `ghcr.io/tristan-stack/projet-docker/<service>:<tag>`.
+Images publiées : `ghcr.io/tristan-stack/villa-cote-azur/<service>:<tag>`.
 
 ## Sauvegarde de la base
 

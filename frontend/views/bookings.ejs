@@ -1,37 +1,52 @@
 <%- include('partials/header', { title: 'Mes réservations' }) %>
-<section class="page-head">
-  <p class="eyebrow">Votre espace</p>
-  <h1 class="page-title">Mes <em>réservations</em></h1>
-</section>
+<div class="page-header">
+  <h1 class="page-title">Mes réservations</h1>
+  <p class="page-description">Vos séjours à venir. Vous pouvez annuler une réservation à tout moment.</p>
+</div>
 <% if (bookings.length === 0) { %>
-  <div class="empty-state">
-    <p>Vous n'avez pas encore de réservation.</p>
-    <a class="btn" href="/villas">Découvrir les villas</a>
+  <div class="card empty">
+    <div class="card-header">
+      <%- icon('calendar') %>
+      <h2 class="card-title">Aucune réservation</h2>
+      <p class="card-description">Vous n'avez pas encore réservé de séjour.</p>
+    </div>
+    <div class="card-footer"><a class="btn" href="/villas">Découvrir les villas</a></div>
   </div>
 <% } else { %>
-  <ul class="tickets">
-    <% bookings.forEach((b) => { %>
-      <li class="ticket" data-reveal>
-        <div class="ticket__media">
-          <% if (b.villa) { %><%- include('partials/postcard', { villa: b.villa, uid: 'booking-' + b.id }) %><% } %>
-        </div>
-        <div class="ticket__info">
-          <p class="eyebrow"><%= b.villa ? b.villa.city : 'Villa' %></p>
-          <h2 class="ticket__name"><%= b.villa ? b.villa.name : 'Villa n°' + b.villa_id %></h2>
-          <div class="ticket__dates">
-            <p><span>Arrivée</span><strong><%= formatDate(b.start_date) %></strong></p>
-            <span class="ticket__arrow" aria-hidden="true">→</span>
-            <p><span>Départ</span><strong><%= formatDate(b.end_date) %></strong></p>
-          </div>
-        </div>
-        <div class="ticket__stub">
-          <p><span><%= b.nights %> nuit<%= b.nights > 1 ? 's' : '' %></span><strong><%= b.total !== null ? formatPrice(b.total) : '—' %></strong></p>
-          <form method="post" action="/bookings/<%= b.id %>/cancel" onsubmit="return confirm('Annuler cette réservation ?')">
-            <button class="btn btn--outline btn--small" type="submit">Annuler</button>
-          </form>
-        </div>
-      </li>
-    <% }) %>
-  </ul>
+  <div class="table-card">
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Villa</th><th class="hide-mobile">Arrivée</th><th class="hide-mobile">Départ</th>
+            <th class="num hide-mobile">Nuits</th><th class="num">Total</th>
+            <th><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% bookings.forEach((b) => { %>
+            <tr>
+              <td>
+                <p class="cell-title"><%= b.villa ? b.villa.name : 'Villa n°' + b.villa_id %></p>
+                <% if (b.villa) { %><p class="text-xs muted"><%= b.villa.city %></p><% } %>
+                <p class="text-xs muted show-mobile">
+                  Du <%= formatDate(b.start_date) %> au <%= formatDate(b.end_date) %> · <%= b.nights %> nuit<%= b.nights > 1 ? 's' : '' %>
+                </p>
+              </td>
+              <td class="hide-mobile"><%= formatDate(b.start_date) %></td>
+              <td class="hide-mobile"><%= formatDate(b.end_date) %></td>
+              <td class="num hide-mobile"><%= b.nights %></td>
+              <td class="num cell-title"><%= b.total !== null ? formatPrice(b.total) : '—' %></td>
+              <td class="table-actions">
+                <form method="post" action="/bookings/<%= b.id %>/cancel" onsubmit="return confirm('Annuler cette réservation ?')">
+                  <button class="btn btn-outline btn-sm" type="submit">Annuler</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
 <% } %>
 <%- include('partials/footer') %>

@@ -11,12 +11,9 @@ import path from 'node:path';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
-import { paletteFor } from './postcards.js';
+import { icon } from './icons.js';
 
 const SESSION_COOKIE = 'session';
-
-// Villa d'illustration des pages de connexion, et de l'accueil si le catalogue ne répond pas
-const SHOWCASE_VILLA = { id: 0, name: 'Villa Bleu Azur', city: 'Cannes', has_pool: true, sea_view: true };
 
 // Messages affichés après une redirection (?msg=…) : liste fermée, le texte ne vient
 // jamais de l'URL (aucune injection possible).
@@ -46,21 +43,19 @@ export function createApp({ api, appEnv = 'test', cookieSecure = false, sessionT
     appEnv: appEnv.toUpperCase(),
     user: null,
     message: null,
+    currentPath: '', // page affichée : met en évidence le bon lien du menu
     assetVersion: Date.now().toString(36), // « ?v=… » : le navigateur recharge CSS et JS après un déploiement
-    showcaseVilla: SHOWCASE_VILLA,
-    paletteFor, // couleurs des illustrations SVG, selon la ville
+    icon, // icônes SVG insérées dans le HTML
     formatDate: (iso) => iso.split('-').reverse().join('/'), // 2026-12-24 → 24/12/2026
     formatPrice: (euros) => `${euros.toLocaleString('fr-FR')} €`,
   });
 
   app.use(compression()); // pages, CSS et JS compressés (gzip) : chargement plus rapide
 
-  // Polices auto-hébergées (paquets npm @fontsource) : aucun appel à un service externe,
-  // et fichiers mis en cache un an par le navigateur
-  const fonts = path.join(import.meta.dirname, '..', 'node_modules', '@fontsource-variable');
-  const cachedForever = { maxAge: '1y', immutable: true };
-  app.use('/fonts/fraunces', express.static(path.join(fonts, 'fraunces', 'files'), cachedForever));
-  app.use('/fonts/manrope', express.static(path.join(fonts, 'manrope', 'files'), cachedForever));
+  // Police Geist auto-hébergée (paquet npm @fontsource-variable/geist) : aucun appel à un
+  // service externe, et fichiers mis en cache un an par le navigateur
+  const geist = path.join(import.meta.dirname, '..', 'node_modules', '@fontsource-variable', 'geist', 'files');
+  app.use('/fonts/geist', express.static(geist, { maxAge: '1y', immutable: true }));
   app.use(express.static(path.join(import.meta.dirname, '..', 'public'), { maxAge: '1d' }));
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
@@ -72,6 +67,7 @@ export function createApp({ api, appEnv = 'test', cookieSecure = false, sessionT
   app.use(async (req, res, next) => {
     const msg = req.query.msg;
     res.locals.message = typeof msg === 'string' && Object.hasOwn(MESSAGES, msg) ? MESSAGES[msg] : null;
+    res.locals.currentPath = req.path;
     const token = req.cookies[SESSION_COOKIE];
     if (token) {
       const user = await api.me(token);
@@ -114,13 +110,11 @@ export function createApp({ api, appEnv = 'test', cookieSecure = false, sessionT
     // Sélection présentée sur l'accueil public : si le catalogue ne répond pas, la page
     // s'affiche quand même, sans la sélection.
     const villas = await api.listVillas().catch(() => []);
-    const byPrice = [...villas].sort((a, b) => b.price_per_night - a.price_per_night);
     res.render('home', {
       featured: villas.slice(0, 3),
       villaCount: villas.length,
       cityCount: new Set(villas.map((v) => v.city)).size,
-      minPrice: byPrice.at(-1)?.price_per_night ?? null,
-      heroVilla: byPrice[0] ?? SHOWCASE_VILLA, // la villa la plus prestigieuse en vitrine
+      minPrice: villas.length ? Math.min(...villas.map((v) => v.price_per_night)) : null,
     });
   });
 

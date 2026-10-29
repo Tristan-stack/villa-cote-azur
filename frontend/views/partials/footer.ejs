@@ -1,22 +1,8 @@
   </main>
   <footer class="site-footer">
-    <div class="footer-top">
-      <p class="footer-claim">Le soleil, la mer,<br><em>et rien d'autre à prévoir.</em></p>
-      <div class="footer-cols">
-        <div>
-          <h2 class="footer-title">Destinations</h2>
-          <ul><li>Nice</li><li>Cannes</li><li>Antibes</li><li>Saint-Tropez</li><li>Menton</li><li>Èze</li></ul>
-        </div>
-        <div>
-          <h2 class="footer-title">Le projet</h2>
-          <ul><li>Micro-services Docker</li><li>Node.js · Python · PostgreSQL</li><li>Master 2 · 2026</li></ul>
-        </div>
-      </div>
-    </div>
-    <p class="footer-wordmark" aria-hidden="true">Côte d'Azur</p>
-    <div class="footer-bottom">
-      <span>Villa sur la Côte d'Azur · projet « Dév avec Docker »</span>
-      <span class="env env-<%= appEnv.toLowerCase() %>">Environnement : <%= appEnv %></span>
+    <div class="container site-footer__inner">
+      <p>Villa sur la Côte d'Azur · projet « Dév avec Docker » · Master 2</p>
+      <span class="badge badge-outline env env-<%= appEnv.toLowerCase() %>"><span class="env__dot" aria-hidden="true"></span>Environnement : <%= appEnv %></span>
     </div>
   </footer>
 </body>

@@ -1,18 +1,22 @@
-<article class="villa-card" data-reveal>
-  <a class="villa-card__link" href="/villas/<%= villa.id %>">
-    <div class="villa-card__media">
-      <%- include('postcard', { villa, uid: 'card-' + villa.id }) %>
-      <span class="villa-card__city"><%= villa.city %></span>
+<article class="card villa-card">
+  <div class="card-header">
+    <div class="villa-card__top">
+      <span class="badge badge-outline"><%- icon('map-pin') %><%= villa.city %></span>
+      <p class="villa-card__price"><strong><%= formatPrice(villa.price_per_night) %></strong> / nuit</p>
     </div>
-    <div class="villa-card__body">
-      <h3 class="villa-card__name"><%= villa.name %></h3>
-      <p class="villa-card__meta">
-        <%= villa.capacity %> voyageurs · <%= villa.bedrooms %> chambres<%= villa.has_pool ? ' · piscine' : '' %><%= villa.sea_view ? ' · vue mer' : '' %>
-      </p>
-      <p class="villa-card__price">
-        <strong><%= formatPrice(villa.price_per_night) %></strong> / nuit
-        <span class="villa-card__arrow" aria-hidden="true">→</span>
-      </p>
-    </div>
-  </a>
+    <h3 class="card-title"><a class="stretched-link" href="/villas/<%= villa.id %>"><%= villa.name %></a></h3>
+    <% if (villa.description) { %><p class="card-description line-clamp-2"><%= villa.description %></p><% } %>
+  </div>
+  <div class="card-footer villa-card__footer">
+    <ul class="meta">
+      <li><%- icon('users') %><%= villa.capacity %> voyageurs</li>
+      <li><%- icon('bed-double') %><%= villa.bedrooms %> chambres</li>
+    </ul>
+    <% if (villa.has_pool || villa.sea_view) { %>
+      <div class="badges">
+        <% if (villa.has_pool) { %><span class="badge badge-secondary">Piscine</span><% } %>
+        <% if (villa.sea_view) { %><span class="badge badge-secondary">Vue mer</span><% } %>
+      </div>
+    <% } %>
+  </div>
 </article>

@@ -1,20 +1,22 @@
-<%- include('partials/header', { title: 'Nos villas' }) %>
-<section class="page-head">
-  <p class="eyebrow">Catalogue · <%= total %> villas</p>
-  <h1 class="page-title">Nos <em>villas</em></h1>
-  <p class="page-lead"><%= total %> adresses choisies entre mer et collines. Filtrez par ville, puis choisissez vos dates.</p>
-  <nav class="chips" aria-label="Filtrer par ville">
-    <a class="chip <%= city ? '' : 'is-active' %>" href="/villas">Toutes</a>
+<%- include('partials/header', { title: 'Villas' }) %>
+<div class="page-header">
+  <h1 class="page-title">Villas</h1>
+  <p class="page-description"><%= total %> villas sur la Côte d'Azur. Filtrez par ville, puis choisissez vos dates.</p>
+</div>
+<div class="toolbar">
+  <nav class="tabs" aria-label="Filtrer par ville">
+    <a class="tab" href="/villas"<%- city ? '' : ' aria-current="page"' %>>Toutes</a>
     <% cities.forEach((c) => { %>
-      <a class="chip <%= c === city ? 'is-active' : '' %>" href="/villas?city=<%= encodeURIComponent(c) %>"><%= c %></a>
+      <a class="tab" href="/villas?city=<%= encodeURIComponent(c) %>"<%- c === city ? ' aria-current="page"' : '' %>><%= c %></a>
     <% }) %>
   </nav>
-</section>
+</div>
 <h2 class="sr-only">Liste des villas</h2>
 <% if (villas.length === 0) { %>
-  <p class="empty-state">Aucune villa pour cette ville.</p>
+  <div class="card empty"><p class="card-content muted">Aucune villa pour cette ville.</p></div>
+<% } else { %>
+  <div class="grid grid-3">
+    <% villas.forEach((villa) => { %><%- include('partials/villa-card', { villa }) %><% }) %>
+  </div>
 <% } %>
-<div class="grid grid--3">
-  <% villas.forEach((villa) => { %><%- include('partials/villa-card', { villa }) %><% }) %>
-</div>
 <%- include('partials/footer') %>

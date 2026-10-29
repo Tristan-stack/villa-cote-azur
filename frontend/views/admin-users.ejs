@@ -1,40 +1,42 @@
 <%- include('partials/header', { title: 'Administration' }) %>
 <% const admins = users.filter((u) => u.role === 'admin').length; %>
-<section class="page-head">
-  <p class="eyebrow">Back-office</p>
-  <h1 class="page-title">Administration <em>des comptes</em></h1>
-</section>
-<dl class="stats">
-  <div><dt>Comptes</dt><dd><%= users.length %></dd></div>
-  <div><dt>Standard</dt><dd><%= users.length - admins %></dd></div>
-  <div><dt>Administrateurs</dt><dd><%= admins %></dd></div>
-</dl>
-<% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
-<div class="table-wrap">
-  <table class="table">
-    <thead>
-      <tr><th>#</th><th>Email</th><th>Type</th><th>Inscrit le</th><th><span class="sr-only">Actions</span></th></tr>
-    </thead>
-    <tbody>
-      <% users.forEach((u) => { %>
-        <tr data-user-id="<%= u.id %>" data-user-email="<%= u.email %>">
-          <td><%= u.id %></td>
-          <td><%= u.email %></td>
-          <td><span class="badge badge--<%= u.role %>"><%= u.role %></span></td>
-          <td><%= new Date(u.createdAt).toLocaleDateString('fr-FR') %></td>
-          <td class="table__actions">
-            <% if (u.role === 'standard') { %>
-              <form method="post" action="/admin/users/<%= u.id %>/delete" onsubmit="return confirm('Supprimer ce compte et ses réservations ?')">
-                <button class="btn btn--danger btn--small" type="submit">Supprimer</button>
-              </form>
-            <% } else { %>
-              <span class="muted">protégé</span>
-            <% } %>
-          </td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
+<div class="page-header">
+  <h1 class="page-title">Administration</h1>
+  <p class="page-description">Gérez les comptes des utilisateurs.</p>
 </div>
-<p class="muted">Un administrateur peut supprimer les comptes standard, mais pas les autres administrateurs.</p>
+<dl class="stats">
+  <div class="card stat"><dt class="stat-label">Comptes</dt><dd class="stat-value"><%= users.length %></dd></div>
+  <div class="card stat"><dt class="stat-label">Standard</dt><dd class="stat-value"><%= users.length - admins %></dd></div>
+  <div class="card stat"><dt class="stat-label">Administrateurs</dt><dd class="stat-value"><%= admins %></dd></div>
+</dl>
+<% if (error) { %><div class="alert alert-destructive" role="alert"><%- icon('circle-alert') %><p><%= error %></p></div><% } %>
+<div class="table-card">
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr><th>#</th><th>Email</th><th>Type</th><th>Inscrit le</th><th><span class="sr-only">Actions</span></th></tr>
+      </thead>
+      <tbody>
+        <% users.forEach((u) => { %>
+          <tr data-user-id="<%= u.id %>" data-user-email="<%= u.email %>">
+            <td class="muted"><%= u.id %></td>
+            <td class="cell-title"><%= u.email %></td>
+            <td><span class="badge<%= u.role === 'admin' ? '' : ' badge-secondary' %>"><%= u.role %></span></td>
+            <td><%= new Date(u.createdAt).toLocaleDateString('fr-FR') %></td>
+            <td class="table-actions">
+              <% if (u.role === 'standard') { %>
+                <form method="post" action="/admin/users/<%= u.id %>/delete" onsubmit="return confirm('Supprimer ce compte et ses réservations ?')">
+                  <button class="btn btn-outline btn-sm btn-danger-text" type="submit"><%- icon('trash-2') %>Supprimer</button>
+                </form>
+              <% } else { %>
+                <span class="text-sm muted with-icon"><%- icon('lock') %>Protégé</span>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<p class="text-sm muted note">Un administrateur peut supprimer les comptes standard, mais pas les autres administrateurs.</p>
 <%- include('partials/footer') %>

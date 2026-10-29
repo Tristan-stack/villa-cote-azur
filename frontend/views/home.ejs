@@ -1,92 +1,69 @@
-<%- include('partials/header', { title: 'Accueil', bodyClass: 'page-home' }) %>
+<%- include('partials/header', { title: 'Accueil' }) %>
 <section class="hero">
-  <div class="hero__inner">
-    <div class="hero__text">
-      <p class="eyebrow eyebrow--light">Locations de villas · Riviera française</p>
-      <h1 class="hero__title">La Riviera<br><em>vous attend.</em></h1>
-      <p class="hero__lead">Des villas d'exception entre Nice et Saint-Tropez : piscines privées, terrasses
-        face à la Méditerranée et réservation en quelques clics.</p>
-      <div class="hero__actions">
-        <a class="btn btn--sun" href="/villas">Découvrir les villas</a>
-        <% if (!user) { %><a class="btn btn--ghost" href="/register">Créer un compte</a><% } %>
-      </div>
-      <% if (villaCount) { %>
-        <dl class="hero__stats">
-          <div><dt>Villas</dt><dd><%= villaCount %></dd></div>
-          <div><dt>Destinations</dt><dd><%= cityCount %></dd></div>
-          <div><dt>Nuit dès</dt><dd><%= formatPrice(minPrice) %></dd></div>
-        </dl>
-      <% } %>
-    </div>
-    <figure class="hero__visual">
-      <%- include('partials/postcard', { villa: heroVilla, uid: 'hero', className: 'postcard--live' }) %>
-      <figcaption class="hero__caption"><%= heroVilla.name %> · <%= heroVilla.city %></figcaption>
-    </figure>
+  <a class="announcement" href="/villas">
+    <%- icon('sun') %><%= villaCount ? villaCount + ' villas disponibles cet été' : 'Locations de villas sur la Riviera' %><%- icon('arrow-right') %>
+  </a>
+  <h1 class="hero-title">Des villas d'exception sur la Côte d'Azur.</h1>
+  <p class="hero-description">Nice, Cannes, Antibes, Saint-Tropez, Menton et Èze. Consultez les disponibilités et
+    réservez votre séjour en quelques clics.</p>
+  <div class="hero-actions">
+    <a class="btn btn-lg" href="/villas">Découvrir les villas<%- icon('arrow-right') %></a>
+    <% if (!user) { %><a class="btn btn-outline btn-lg" href="/register">Créer un compte</a><% } %>
   </div>
-  <a class="hero__scroll" href="#experience">Défiler</a>
 </section>
 
-<div class="marquee" aria-hidden="true">
-  <div class="marquee__track">
-    <% for (let i = 0; i < 2; i++) { %>
-      <span>Nice</span><span>✦</span><span>Cannes</span><span>✦</span><span>Antibes</span><span>✦</span>
-      <span>Saint-Tropez</span><span>✦</span><span>Menton</span><span>✦</span><span>Èze</span><span>✦</span>
-    <% } %>
-  </div>
-</div>
+<% if (villaCount) { %>
+  <dl class="stats">
+    <div class="card stat"><dt class="stat-label">Villas</dt><dd class="stat-value"><%= villaCount %></dd></div>
+    <div class="card stat"><dt class="stat-label">Destinations</dt><dd class="stat-value"><%= cityCount %></dd></div>
+    <div class="card stat"><dt class="stat-label">Nuit dès</dt><dd class="stat-value"><%= formatPrice(minPrice) %></dd></div>
+  </dl>
+<% } %>
 
 <% if (featured.length) { %>
   <section class="section">
-    <header class="section__head" data-reveal>
-      <p class="eyebrow"><span>01</span> Notre sélection</p>
-      <h2 class="section__title">Trois adresses<br><em>pour commencer.</em></h2>
-      <a class="link-arrow" href="/villas">Toutes les villas →</a>
-    </header>
-    <div class="grid grid--3">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Notre sélection</h2>
+        <p class="muted">Trois adresses pour commencer.</p>
+      </div>
+      <a class="btn btn-ghost btn-sm" href="/villas">Toutes les villas<%- icon('arrow-right') %></a>
+    </div>
+    <div class="grid grid-3">
       <% featured.forEach((villa) => { %><%- include('partials/villa-card', { villa }) %><% }) %>
     </div>
   </section>
 <% } %>
 
-<section class="section section--split" id="experience">
-  <header class="section__head" data-reveal>
-    <p class="eyebrow"><span>02</span> L'expérience</p>
-    <h2 class="section__title">Pensé pour<br><em>l'été parfait.</em></h2>
-  </header>
-  <ol class="features">
-    <li data-reveal>
-      <span class="features__num">01</span>
-      <h3>Le bord de mer</h3>
-      <p>Des villas à quelques minutes des plus belles plages de la Riviera, de la baie des Anges à Pampelonne.</p>
-    </li>
-    <li data-reveal>
-      <span class="features__num">02</span>
-      <h3>Des piscines privées</h3>
-      <p>Jardins méditerranéens, terrasses ombragées et piscines pour profiter du soleil en toute intimité.</p>
-    </li>
-    <li data-reveal>
-      <span class="features__num">03</span>
-      <h3>Une réservation limpide</h3>
-      <p>Les dates déjà prises sont affichées et le prix total est calculé en direct : aucune mauvaise surprise.</p>
-    </li>
-  </ol>
-</section>
-
 <section class="section">
-  <header class="section__head" data-reveal>
-    <p class="eyebrow"><span>03</span> Comment ça marche</p>
-    <h2 class="section__title">Trois étapes,<br><em>zéro souci.</em></h2>
-  </header>
-  <ol class="steps">
-    <li data-reveal><h3>Créez votre compte</h3><p>Quelques secondes suffisent : un email et un mot de passe.</p></li>
-    <li data-reveal><h3>Choisissez votre villa</h3><p>Filtrez par ville et consultez les disponibilités en temps réel.</p></li>
-    <li data-reveal><h3>Réservez vos dates</h3><p>Votre séjour apparaît aussitôt dans votre espace personnel.</p></li>
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Comment ça marche</h2>
+      <p class="muted">Trois étapes, aucune surprise.</p>
+    </div>
+  </div>
+  <ol class="grid grid-3">
+    <li class="card">
+      <div class="card-header">
+        <span class="step-number">1</span>
+        <h3 class="card-title">Créez votre compte</h3>
+        <p class="card-description">Un email et un mot de passe suffisent.</p>
+      </div>
+    </li>
+    <li class="card">
+      <div class="card-header">
+        <span class="step-number">2</span>
+        <h3 class="card-title">Choisissez votre villa</h3>
+        <p class="card-description">Filtrez par ville et consultez les dates déjà réservées.</p>
+      </div>
+    </li>
+    <li class="card">
+      <div class="card-header">
+        <span class="step-number">3</span>
+        <h3 class="card-title">Réservez vos dates</h3>
+        <p class="card-description">Le prix total est calculé en direct, puis le séjour apparaît dans votre espace.</p>
+      </div>
+    </li>
   </ol>
-</section>
-
-<section class="cta" data-reveal>
-  <p class="eyebrow eyebrow--light">Prêt à partir ?</p>
-  <h2 class="cta__title">Votre été<br><em>commence ici.</em></h2>
-  <a class="btn btn--sun" href="<%= user ? '/villas' : '/register' %>"><%= user ? 'Voir les villas' : 'Créer un compte' %></a>
 </section>
 <%- include('partials/footer') %>

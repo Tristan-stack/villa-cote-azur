@@ -1,25 +1,33 @@
 <%- include('partials/header', { title: 'Mon compte' }) %>
-<section class="page-head">
-  <p class="eyebrow">Votre espace</p>
-  <h1 class="page-title">Mon <em>compte</em></h1>
-</section>
-<div class="panels">
-  <section class="panel">
-    <div class="avatar" aria-hidden="true"><%= user.email.charAt(0).toUpperCase() %></div>
-    <dl class="profile">
-      <div><dt>Email</dt><dd><%= user.email %></dd></div>
-      <div>
-        <dt>Type de compte</dt>
-        <dd><span class="badge badge--<%= user.role %>"><%= user.role === 'admin' ? 'administrateur' : 'standard' %></span></dd>
+<div class="page-header">
+  <h1 class="page-title">Mon compte</h1>
+  <p class="page-description">Les informations de votre compte.</p>
+</div>
+<div class="grid grid-2">
+  <section class="card">
+    <div class="card-header">
+      <h2 class="card-title">Profil</h2>
+      <p class="card-description">Votre identifiant de connexion et votre type de compte.</p>
+    </div>
+    <div class="card-content profile">
+      <span class="avatar" aria-hidden="true"><%= user.email.charAt(0).toUpperCase() %></span>
+      <div class="profile__text">
+        <p class="cell-title"><%= user.email %></p>
+        <p class="text-sm muted">Compte <%= user.role === 'admin' ? 'administrateur' : 'standard' %></p>
       </div>
-    </dl>
+      <span class="badge<%= user.role === 'admin' ? '' : ' badge-secondary' %>"><%= user.role %></span>
+    </div>
   </section>
-  <section class="panel panel--danger">
-    <h2 class="block-title">Supprimer mon compte</h2>
-    <p>Cette action est définitive : votre compte et toutes vos réservations seront supprimés.</p>
-    <form method="post" action="/account/delete" onsubmit="return confirm('Supprimer définitivement votre compte ?')">
-      <button class="btn btn--danger" type="submit">Supprimer mon compte</button>
-    </form>
+  <section class="card card-danger">
+    <div class="card-header">
+      <h2 class="card-title">Supprimer mon compte</h2>
+      <p class="card-description">Cette action est définitive : votre compte et toutes vos réservations seront supprimés.</p>
+    </div>
+    <div class="card-footer">
+      <form method="post" action="/account/delete" onsubmit="return confirm('Supprimer définitivement votre compte ?')">
+        <button class="btn btn-destructive" type="submit"><%- icon('trash-2') %>Supprimer mon compte</button>
+      </form>
+    </div>
   </section>
 </div>
 <%- include('partials/footer') %>

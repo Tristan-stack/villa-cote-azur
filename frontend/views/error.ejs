@@ -1,7 +1,7 @@
 <%- include('partials/header', { title: 'Erreur ' + status }) %>
 <section class="error-page">
   <p class="error-page__code"><%= status %></p>
-  <h1 class="error-page__title"><%= detail %></h1>
-  <a class="btn" href="/">Retour à l'accueil</a>
+  <h1 class="page-title"><%= detail %></h1>
+  <a class="btn" href="/"><%- icon('arrow-left') %>Retour à l'accueil</a>
 </section>
 <%- include('partials/footer') %>

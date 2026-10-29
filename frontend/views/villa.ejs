@@ -1,49 +1,65 @@
 <%- include('partials/header', { title: villa.name }) %>
-<nav class="crumbs" aria-label="Fil d'Ariane"><a href="/villas">← Toutes les villas</a></nav>
-<section class="villa-hero">
-  <p class="eyebrow"><%= villa.city %> · Côte d'Azur</p>
+<nav class="breadcrumb" aria-label="Fil d'Ariane">
+  <a href="/villas">Villas</a><%- icon('chevron-right') %><span aria-current="page"><%= villa.name %></span>
+</nav>
+<div class="page-header">
   <h1 class="page-title"><%= villa.name %></h1>
-  <ul class="tags">
-    <li><%= villa.capacity %> voyageurs</li>
-    <li><%= villa.bedrooms %> chambres</li>
-    <% if (villa.has_pool) { %><li>Piscine privée</li><% } %>
-    <% if (villa.sea_view) { %><li>Vue sur la mer</li><% } %>
-  </ul>
-</section>
+  <p class="page-description with-icon"><%- icon('map-pin') %><%= villa.city %> · Côte d'Azur</p>
+  <div class="badges">
+    <span class="badge badge-outline"><%- icon('users') %><%= villa.capacity %> voyageurs</span>
+    <span class="badge badge-outline"><%- icon('bed-double') %><%= villa.bedrooms %> chambres</span>
+    <% if (villa.has_pool) { %><span class="badge badge-secondary">Piscine privée</span><% } %>
+    <% if (villa.sea_view) { %><span class="badge badge-secondary">Vue sur la mer</span><% } %>
+  </div>
+</div>
 <div class="villa-layout">
-  <div class="villa-main">
-    <div class="villa-visual">
-      <%- include('partials/postcard', { villa, uid: 'detail', className: 'postcard--live' }) %>
-    </div>
-    <p class="villa-description"><%= villa.description %></p>
-    <section>
-      <h2 class="block-title">Disponibilités</h2>
-      <% if (periods.length === 0) { %>
-        <p class="muted">Aucune réservation à venir : toutes les dates sont libres.</p>
-      <% } else { %>
-        <ul class="periods">
-          <% periods.forEach((p) => { %>
-            <li><span>Réservé</span> du <%= formatDate(p.start_date) %> au <%= formatDate(p.end_date) %></li>
-          <% }) %>
-        </ul>
-      <% } %>
+  <div class="stack">
+    <section class="card">
+      <div class="card-header"><h2 class="card-title">À propos</h2></div>
+      <div class="card-content"><p class="prose"><%= villa.description %></p></div>
+    </section>
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Disponibilités</h2>
+        <p class="card-description">Les périodes ci-dessous sont déjà réservées.</p>
+      </div>
+      <div class="card-content">
+        <% if (periods.length === 0) { %>
+          <p class="text-sm muted">Aucune réservation à venir : toutes les dates sont libres.</p>
+        <% } else { %>
+          <ul class="list">
+            <% periods.forEach((p) => { %>
+              <li>
+                <span class="with-icon"><%- icon('calendar') %>Du <%= formatDate(p.start_date) %> au <%= formatDate(p.end_date) %></span>
+                <span class="badge badge-secondary">Réservé</span>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+      </div>
     </section>
   </div>
-  <aside class="booking-card" aria-labelledby="booking-title">
-    <p class="booking-card__price"><strong><%= formatPrice(villa.price_per_night) %></strong> / nuit</p>
-    <h2 id="booking-title" class="booking-card__title">Réserver cette villa</h2>
-    <% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
-    <form method="post" action="/villas/<%= villa.id %>/book" class="form" data-booking data-price="<%= villa.price_per_night %>">
-      <label>Arrivée
-        <input type="date" name="start_date" min="<%= minDate %>" value="<%= form.start_date || '' %>" required>
-      </label>
-      <label>Départ
-        <input type="date" name="end_date" min="<%= minDate %>" value="<%= form.end_date || '' %>" required>
-      </label>
-      <p class="booking-card__total" data-total aria-live="polite">Choisissez vos dates</p>
-      <button class="btn btn--block" type="submit">Réserver ces dates</button>
-    </form>
-    <p class="booking-card__note">Démonstration : aucun paiement n'est demandé.</p>
+  <aside class="card booking-card" aria-labelledby="booking-title">
+    <div class="card-header">
+      <p><span class="price__amount"><%= formatPrice(villa.price_per_night) %></span> <span class="muted">/ nuit</span></p>
+      <h2 id="booking-title" class="card-description">Réserver cette villa</h2>
+    </div>
+    <div class="card-content">
+      <% if (error) { %><div class="alert alert-destructive" role="alert"><%- icon('circle-alert') %><p><%= error %></p></div><% } %>
+      <form method="post" action="/villas/<%= villa.id %>/book" class="form" data-booking data-price="<%= villa.price_per_night %>">
+        <div class="field">
+          <label class="label" for="start_date">Arrivée</label>
+          <input class="input" id="start_date" type="date" name="start_date" min="<%= minDate %>" value="<%= form.start_date || '' %>" required>
+        </div>
+        <div class="field">
+          <label class="label" for="end_date">Départ</label>
+          <input class="input" id="end_date" type="date" name="end_date" min="<%= minDate %>" value="<%= form.end_date || '' %>" required>
+        </div>
+        <p class="total" data-total aria-live="polite">Choisissez vos dates</p>
+        <button class="btn btn-block" type="submit">Réserver ces dates</button>
+      </form>
+    </div>
+    <div class="card-footer"><p class="text-sm muted">Démonstration : aucun paiement n'est demandé.</p></div>
   </aside>
 </div>
 <%- include('partials/footer') %>

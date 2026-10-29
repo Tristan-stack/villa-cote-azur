@@ -54,7 +54,7 @@ describe('pages publiques', () => {
   });
 
   test('les polices sont servies par le frontend (aucun service externe)', async () => {
-    const res = await request(app).get('/fonts/fraunces/fraunces-latin-wght-normal.woff2');
+    const res = await request(app).get('/fonts/geist/geist-latin-wght-normal.woff2');
     assert.equal(res.status, 200);
     assert.match(res.headers['cache-control'], /immutable/);
   });

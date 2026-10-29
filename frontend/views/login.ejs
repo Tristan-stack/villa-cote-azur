@@ -1,24 +1,26 @@
-<%- include('partials/header', { title: 'Connexion', bodyClass: 'page-auth' }) %>
+<%- include('partials/header', { title: 'Connexion' }) %>
 <div class="auth">
-  <aside class="auth__visual">
-    <%- include('partials/postcard', { villa: showcaseVilla, uid: 'auth', className: 'postcard--live', aspect: 'xMaxYMid' }) %>
-    <blockquote class="auth__quote">« Le soleil, la mer,<br>et rien d'autre à prévoir. »</blockquote>
-  </aside>
-  <section class="auth__panel">
-    <p class="eyebrow">Bon retour</p>
-    <h1 class="page-title">Connexion</h1>
-    <% if (error) { %><p class="alert" role="alert"><%= error %></p><% } %>
-    <form method="post" action="/login" class="form">
-      <input type="hidden" name="next" value="<%= next %>">
-      <label>Email
-        <input type="email" name="email" value="<%= email %>" autocomplete="email" required autofocus>
-      </label>
-      <label>Mot de passe
-        <input type="password" name="password" autocomplete="current-password" required>
-      </label>
-      <button class="btn btn--block" type="submit">Se connecter</button>
-    </form>
-    <p class="auth__switch">Pas encore de compte ? <a href="/register">Créer un compte</a></p>
+  <section class="card auth__card">
+    <div class="card-header">
+      <h1 class="card-title auth__title">Connexion</h1>
+      <p class="card-description">Entrez votre email et votre mot de passe pour accéder à votre compte.</p>
+    </div>
+    <div class="card-content">
+      <% if (error) { %><div class="alert alert-destructive" role="alert"><%- icon('circle-alert') %><p><%= error %></p></div><% } %>
+      <form method="post" action="/login" class="form">
+        <input type="hidden" name="next" value="<%= next %>">
+        <div class="field">
+          <label class="label" for="email">Email</label>
+          <input class="input" id="email" type="email" name="email" value="<%= email %>" placeholder="vous@exemple.fr" autocomplete="email" required autofocus>
+        </div>
+        <div class="field">
+          <label class="label" for="password">Mot de passe</label>
+          <input class="input" id="password" type="password" name="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn btn-block" type="submit">Se connecter</button>
+      </form>
+      <p class="auth__switch">Pas encore de compte ? <a class="link" href="/register">Créer un compte</a></p>
+    </div>
   </section>
 </div>
 <%- include('partials/footer') %>

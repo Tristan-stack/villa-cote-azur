@@ -33,11 +33,12 @@ Projet du module « Dév avec Docker » (Master 2).
 Seul le frontend est joignable depuis l'extérieur. Les backends et la base sont sur des réseaux
 Docker `internal`, sans aucun port publié.
 
-L'interface n'utilise aucune ressource externe :
-- illustrations SVG générées par le serveur ;
-- polices auto-hébergées.
+L'interface est minimaliste, dans le style de shadcn/ui :
+- thème « neutral », police Geist ;
+- mode sombre automatique.
 
-Pages compressées en gzip : environ 120 Ko pour l'accueil, polices comprises.
+Elle n'utilise aucune ressource externe. Pages compressées en gzip : environ 37 Ko pour l'accueil,
+police comprise.
 
 ## Lancer l'application (environnement TEST)
 

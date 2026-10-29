@@ -179,37 +179,40 @@ compose, en 28 vérifications :
 
 ### 1.8 Interface utilisateur
 
-L'interface s'inspire des sites primés sur Awwwards :
-- mise en page éditoriale, avec une grande typographie à empattements (Fraunces) associée à une
-  linéale (Manrope) ;
-- palette méditerranéenne : bleu nuit, sable, soleil, terre cuite ;
-- animations discrètes ;
+L'interface est volontairement minimaliste, dans le style de **shadcn/ui**, la bibliothèque de
+composants la plus répandue de l'écosystème React :
+- mêmes couleurs (thème « neutral » : noir, blanc et gris), même police (Geist), mêmes icônes
+  (Lucide) ;
+- mêmes composants : boutons, cartes, champs de formulaire, badges, onglets, tableaux, alertes,
+  message de confirmation ;
+- mode sombre automatique, qui suit le réglage du système ;
 - affichage adapté du mobile au grand écran.
 
+shadcn/ui est écrit pour React. Plutôt que de réécrire le frontend en React, nous avons repris ses
+variables de couleur et ses composants en CSS simple, dans une seule feuille de style. Le frontend
+reste ainsi un service Node.js qui rend ses pages côté serveur avec EJS, sans étape de build.
+
 - **Aucune ressource externe.**
-  - Chaque villa est illustrée par une « carte postale » en SVG, générée côté serveur par un
-    gabarit EJS à partir de ses données : mer ou collines selon `sea_view`, piscine selon
-    `has_pool`, palette de couleurs propre à chaque ville. Il n'y a aucune image à stocker.
-  - Les polices sont installées comme dépendances npm (`@fontsource-variable`) et servies par le
-    frontend lui-même. Il n'y a ni CDN ni Google Fonts : aucune donnée de navigation n'est envoyée à
-    un tiers, et la démo fonctionne même sans Internet.
+  - La police Geist est installée comme dépendance npm (`@fontsource-variable/geist`) et servie
+    par le frontend lui-même.
+  - Les icônes sont des SVG insérés directement dans le HTML.
+  - Il n'y a ni CDN ni Google Fonts : aucune donnée de navigation n'est envoyée à un tiers, et la
+    démo fonctionne même sans Internet.
 - **Rapidité.**
   - Les pages sont rendues côté serveur et compressées en gzip (middleware `compression`).
-  - Tailles compressées : page d'accueil ≈ 4 Ko, feuille de style ≈ 7 Ko, script ≈ 1 Ko, soit
-    environ 120 Ko au total avec les trois polices.
-  - Le navigateur met en cache les fichiers statiques (un an pour les polices). Un numéro de
-    version dans l'URL de la feuille de style et du script force leur mise à jour après un
-    redémarrage.
-- **Amélioration progressive.**
-  - Le site fonctionne entièrement sans JavaScript : les formulaires sont de simples formulaires
-    HTML.
-  - Le script n'ajoute que l'apparition des blocs au défilement et le calcul en direct du prix
-    total dans le formulaire de réservation.
-  - Les animations sont coupées si le système le demande (`prefers-reduced-motion`).
+  - Tailles compressées : page d'accueil ≈ 2,5 Ko, feuille de style ≈ 4,7 Ko, script ≈ 0,7 Ko,
+    soit environ 37 Ko au total avec la police.
+  - Le navigateur met en cache les fichiers statiques (un an pour la police). Un numéro de version
+    dans l'URL de la feuille de style et du script force leur mise à jour après un redémarrage.
+- **Amélioration progressive.** Le site fonctionne entièrement sans JavaScript : les formulaires
+  sont de simples formulaires HTML. Le seul script calcule en direct le prix total dans le
+  formulaire de réservation.
 - **Accessibilité** :
   - lien d'évitement vers le contenu ;
   - un libellé sur chaque champ ;
-  - messages de confirmation annoncés aux lecteurs d'écran (`role="status"`).
+  - page en cours signalée dans le menu (`aria-current`) ;
+  - messages de confirmation annoncés aux lecteurs d'écran (`role="status"`) ;
+  - animations coupées si le système le demande (`prefers-reduced-motion`).
 
 ---
 
@@ -434,11 +437,12 @@ commit :
 | 8 | docker-compose.yml et environnements | `docker compose config`, démarrage complet, test de bout en bout |
 | 9 | pipeline CI/CD | pipeline vert sur GitHub, images publiées dans GHCR |
 | 10 | documentation | rapport, fiche de révision, déroulé de la démo |
-| 11 | refonte de l'interface du frontend | tests, test de bout en bout, captures d'écran sur ordinateur et mobile |
+| 11 | première interface, très graphique (illustrations SVG, animations) | tests, test de bout en bout, captures d'écran |
+| 12 | interface minimaliste dans le style shadcn/ui, qui remplace la précédente (≈ 37 Ko au lieu de 120 Ko) | tests, test de bout en bout, captures en modes clair, sombre et mobile |
 
 Planning : du 28 au 30 octobre 2026.
 - **28/10** : étapes 0 à 11.
-- **29/10** : vérifications, répétition de la démo, rapport.
+- **29/10** : étape 12, vérifications, répétition de la démo, rapport.
 - **30/10** : démo live à 9 h, puis rendu final.
 
 Découpage par composant : chaque micro-service est développé, testé et conteneurisé de façon
@@ -496,6 +500,13 @@ chaque choix.
     compte connecté.
   - Solution : nous avons fait reprendre le message d'erreur de Docker dans une annotation
     visible sur la page du pipeline. Le pipeline suivant a publié les 4 images sans erreur.
+- **Docker Hub injoignable pendant un build.**
+  - Situation : plusieurs constructions ont échoué avec « failed to resolve source metadata… TLS
+    handshake timeout », alors que l'image de base était déjà en cache.
+  - Cause : avec `--build`, Docker vérifie sur Docker Hub la dernière version de l'image de base à
+    chaque construction.
+  - Solution pour la démo : construire les images la veille, puis démarrer sans `--build`
+    (`docker compose up -d --wait`). Le démarrage ne dépend plus du réseau.
 - **Outils qui évoluent.** Le client de test de FastAPI (Starlette) demandait `httpx2` au lieu de
   `httpx`, et hadolint signale désormais un `USER` non numérique : nous avons suivi ces
   recommandations.
@@ -508,8 +519,8 @@ chaque choix.
   expliquer.
 - **Le test de bout en bout**, utilisé à la fois localement, dans la CI et comme répétition de la
   démo.
-- **Une interface soignée sans ressource externe** : illustrations SVG générées par le serveur et
-  polices auto-hébergées. Le site reste léger (≈ 120 Ko) et fonctionne sans Internet, ce qui
+- **Une interface sobre sans ressource externe** : le style de shadcn/ui réécrit en CSS, et une
+  police auto-hébergée. Le site reste très léger (≈ 37 Ko) et fonctionne sans Internet, ce qui
   sécurise la démo.
 
 ### 5.3 Si c'était à refaire / améliorations possibles

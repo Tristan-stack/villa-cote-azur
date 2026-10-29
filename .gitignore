@@ -20,6 +20,9 @@ env/*.env
 *.log
 npm-debug.log*
 
+# --- PDF générés à partir de docs/ (envoyés par mail, pas versionnés) ---
+/pdf/
+
 # --- Éditeurs / OS ---
 .idea/
 .DS_Store

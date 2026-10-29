@@ -1,6 +1,6 @@
 # Rapport de projet — Villa sur la Côte d'Azur
 
-_Module « Dév avec Docker » — Master 2 — octobre 2026_
+_Tristan Gerber — Master 2, Université de Strasbourg — module « Dév avec Docker » — octobre 2026_
 _Dépôt : https://github.com/Tristan-stack/villa-cote-azur_
 
 **Sommaire**
@@ -9,6 +9,8 @@ _Dépôt : https://github.com/Tristan-stack/villa-cote-azur_
 3. Dépôt Git et pipeline CI/CD
 4. Gestion de projet
 5. Rétrospective
+
+Annexe : captures d'écran de l'interface
 
 ---
 
@@ -19,23 +21,9 @@ _Dépôt : https://github.com/Tristan-stack/villa-cote-azur_
 « Villa sur la Côte d'Azur » est un site de location de villas. Il est découpé en cinq
 conteneurs : un frontend, trois backends et une base de données.
 
-```
-                 Navigateur
-                     │  HTTP, port 8081 (seul port publié sur la machine hôte)
-                     ▼
-   ┌───────────── frontend ─────────────┐   réseau « public »
-   │ Node.js 24 · Express 5 · EJS       │
-   │ SANS ÉTAT : cookie = jeton opaque  │
-   └──────┬────────────┬────────────┬───┘   réseau « backend » (internal)
-          ▼            ▼            ▼
-    auth-service  villa-service  booking-service
-    Node.js       Python/FastAPI Python/FastAPI
-       :3001         :8001          :8002
-          └────────────┼────────────┘        réseau « data » (internal)
-                       ▼
-           PostgreSQL 17 (volume nommé)
-     auth_db · villa_db · booking_db (un utilisateur SQL par base)
-```
+![Architecture : cinq conteneurs répartis sur trois réseaux Docker](img/architecture.svg)
+*Le navigateur ne joint que le frontend. Les backends et la base sont sur des réseaux internes,
+sans port publié.*
 
 | Service | Technologie | Responsabilité | Données |
 |---|---|---|---|
@@ -387,7 +375,7 @@ Le pipeline [.github/workflows/ci.yml](../.github/workflows/ci.yml) est déclenc
 ```
 
 - **Identifiant unique de l'image** : le nom du tag git si l'on pousse un tag (ex. `v0.1.0`),
-  sinon le SHA court du commit (ex. `0c2bba2`). Jamais `latest`, qui ne dit pas ce qui est déployé.
+  sinon le SHA court du commit (ex. `2d8e541`). Jamais `latest`, qui ne dit pas ce qui est déployé.
 - **Échec immédiat** : dans un job, une étape en erreur arrête le job. `fail-fast` annule les autres
   services de la matrice, et les étapes suivantes (`needs`) ne démarrent pas. Une image n'est
   publiée que si les tests unitaires, le test de bout en bout et le contrôle de sécurité ont réussi.
@@ -419,12 +407,14 @@ Le pipeline [.github/workflows/ci.yml](../.github/workflows/ci.yml) est déclenc
 
 ## 4. Gestion de projet
 
-**Équipe et répartition** : _à compléter (membres du groupe et répartition des tâches)._
+**Équipe** : projet réalisé seul, par Tristan Gerber.
 
 ### 4.1 Organisation
 
-Le projet a été mené en étapes courtes. Chacune se terminait par une vérification concrète et un
-commit :
+Le travail a été découpé par composant : chaque micro-service a été développé, testé et
+conteneurisé de façon indépendante, avant l'intégration par docker compose. C'est l'intérêt de
+l'architecture en micro-services. Chaque étape, courte, se terminait par une vérification concrète
+et un commit :
 
 | Étape | Contenu | Vérification |
 |---|---|---|
@@ -445,24 +435,19 @@ Planning : du 28 au 30 octobre 2026.
 - **29/10** : étape 12, vérifications, répétition de la démo, rapport.
 - **30/10** : démo live à 9 h, puis rendu final.
 
-Découpage par composant : chaque micro-service est développé, testé et conteneurisé de façon
-indépendante avant l'intégration par docker compose. C'est l'intérêt de l'architecture en
-micro-services.
-
 ### 4.2 Outils
 
-- **Git** et **GitHub** (code, CI/CD avec GitHub Actions, registre GHCR) ;
-- **VS Code** ;
-- **Docker Desktop** (Windows, moteur Linux via WSL2).
+**Git** et **GitHub** (code, CI/CD avec GitHub Actions, registre GHCR), **VS Code**, et **Docker
+Desktop** sous Windows (moteur Linux via WSL2).
 
 **Usage de l'IA.** Le sujet tolère l'IA pour le développement et la CI/CD, et la déconseille pour
-les Dockerfiles et le docker-compose.yml. Nous avons utilisé un assistant IA (Claude, d'Anthropic) :
-- pour générer le code applicatif, les tests et le pipeline ;
-- pour rédiger les Dockerfiles et le docker-compose.yml, en suivant les conventions du cours.
-
-Tous ces fichiers ont été relus, testés (hadolint, `docker compose config`, test de bout en bout)
-et documentés ligne par ligne dans le dépôt et dans la fiche de révision, afin de pouvoir expliquer
-chaque choix.
+les Dockerfiles et le docker-compose.yml. Nous avons travaillé avec un assistant IA (Claude,
+d'Anthropic), qui a écrit le code applicatif, les tests, le pipeline, les Dockerfiles et le
+docker-compose.yml en suivant les conventions du cours. Notre rôle :
+- définir le projet : thème, architecture, langages, outils, style de l'interface ;
+- piloter le travail étape par étape, et vérifier chaque résultat sur notre poste et sur GitHub ;
+- nous approprier chaque fichier, contrôlé par hadolint, `docker compose config` et le test de
+  bout en bout, pour pouvoir en expliquer tous les choix.
 
 ---
 
@@ -536,3 +521,24 @@ chaque choix.
 - **Dépendances Python** : un fichier de verrouillage complet (pip-tools ou uv), comme
   `package-lock.json` côté Node.js.
 - **Production** : un orchestrateur (Docker Swarm ou Kubernetes) et une centralisation des logs.
+
+---
+
+## Annexe : captures d'écran de l'interface
+
+Environnement TEST lancé par docker compose, navigateur Chrome (fenêtre de 1280 × 800).
+
+![Page d'accueil](img/accueil.png)
+*Accueil, avant connexion : seules cette page, la connexion et l'inscription sont accessibles.*
+
+![Fiche d'une villa](img/villa.png)
+*Fiche d'une villa : périodes déjà réservées, et prix total calculé en direct dans le formulaire.*
+
+![Mes réservations](img/reservations.png)
+*Mes réservations : le total combine les données du booking-service et du villa-service.*
+
+![Administration des comptes](img/admin.png)
+*Administration : un admin supprime les comptes standard ; les comptes admin sont protégés.*
+
+![Catalogue en mode sombre](img/catalogue-sombre.png)
+*Catalogue en mode sombre : l'interface suit le réglage du système.*

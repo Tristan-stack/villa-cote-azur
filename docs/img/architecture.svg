@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 470" width="720" height="470" role="img" aria-labelledby="titre description" font-family="Geist, 'Segoe UI', system-ui, -apple-system, Arial, sans-serif">
+  <title id="titre">Architecture de Villa sur la Côte d'Azur</title>
+  <desc id="description">Le navigateur ne joint que le frontend, par le port 8081. Le frontend appelle les trois backends sur le réseau interne « backend ». Les backends accèdent à PostgreSQL sur le réseau interne « data », où le frontend n'est pas.</desc>
+  <defs>
+    <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 10 5 0 10z" fill="#525252"/>
+    </marker>
+    <clipPath id="zone">
+      <rect x="24" y="92" width="672" height="358" rx="10"/>
+    </clipPath>
+  </defs>
+
+  <rect width="720" height="470" fill="#ffffff"/>
+
+  <!-- Client -->
+  <rect x="280" y="12" width="160" height="40" rx="8" fill="#171717"/>
+  <text x="360" y="37" text-anchor="middle" font-size="14" font-weight="600" fill="#fafafa">Navigateur</text>
+  <text x="372" y="72" font-size="11" fill="#525252">HTTP · port 8081, le seul port publié</text>
+
+  <!-- Machine hôte -->
+  <rect x="12" y="80" width="696" height="382" rx="14" fill="none" stroke="#a3a3a3" stroke-dasharray="6 5"/>
+  <text x="28" y="72" font-size="11" fill="#737373">Machine hôte · Docker</text>
+
+  <!-- Les trois réseaux Docker -->
+  <g clip-path="url(#zone)">
+    <rect x="24" y="92" width="672" height="98" fill="#fafafa"/>
+    <rect x="24" y="190" width="672" height="116" fill="#f4f4f4"/>
+    <rect x="24" y="306" width="672" height="144" fill="#ededed"/>
+  </g>
+  <rect x="24" y="92" width="672" height="358" rx="10" fill="none" stroke="#e5e5e5"/>
+  <path d="M24 190H696M24 306H696" stroke="#dcdcdc"/>
+
+  <text x="40" y="114" font-size="12" font-weight="600" fill="#404040">réseau public</text>
+  <text x="40" y="130" font-size="11" fill="#737373">relié à la machine hôte</text>
+
+  <text x="40" y="212" font-size="12" font-weight="600" fill="#404040">réseau backend</text>
+  <text x="40" y="228" font-size="11" fill="#737373">internal : pas d'accès Internet</text>
+  <text x="684" y="212" text-anchor="end" font-size="11" fill="#737373">aucun port publié</text>
+
+  <text x="40" y="424" font-size="12" font-weight="600" fill="#404040">réseau data</text>
+  <text x="40" y="440" font-size="11" fill="#737373">internal : backends ↔ base</text>
+  <text x="684" y="404" text-anchor="end" font-size="11" fill="#737373">frontend absent de ce réseau</text>
+
+  <!-- Flux -->
+  <g fill="none" stroke="#737373" stroke-width="1.5">
+    <path d="M360 52V138" marker-end="url(#fleche)"/>
+    <path d="M360 220V241M133 241H587"/>
+    <path d="M133 241V260M360 241V260M587 241V260" marker-end="url(#fleche)"/>
+    <path d="M133 342V356M360 342V356M587 342V356M133 356H587"/>
+    <path d="M360 356V370" marker-end="url(#fleche)"/>
+  </g>
+
+  <!-- Conteneurs -->
+  <g fill="#ffffff" stroke="#d4d4d4">
+    <rect x="240" y="140" width="240" height="80" rx="8"/>
+    <rect x="40" y="262" width="186" height="80" rx="8"/>
+    <rect x="267" y="262" width="186" height="80" rx="8"/>
+    <rect x="494" y="262" width="186" height="80" rx="8"/>
+    <rect x="210" y="372" width="300" height="62" rx="8"/>
+  </g>
+  <g text-anchor="middle">
+    <text x="360" y="163" font-size="15" font-weight="600" fill="#0a0a0a">frontend</text>
+    <text x="360" y="182" font-size="12" fill="#525252">Node.js 24 · Express 5 · EJS</text>
+    <text x="360" y="200" font-size="11" fill="#737373">sans état · port 3000</text>
+
+    <text x="133" y="285" font-size="15" font-weight="600" fill="#0a0a0a">auth-service</text>
+    <text x="133" y="304" font-size="12" fill="#525252">Node.js 24 · Express 5</text>
+    <text x="133" y="322" font-size="11" fill="#737373">API REST · port 3001</text>
+
+    <text x="360" y="285" font-size="15" font-weight="600" fill="#0a0a0a">villa-service</text>
+    <text x="360" y="304" font-size="12" fill="#525252">Python 3.13 · FastAPI</text>
+    <text x="360" y="322" font-size="11" fill="#737373">API REST · port 8001</text>
+
+    <text x="587" y="285" font-size="15" font-weight="600" fill="#0a0a0a">booking-service</text>
+    <text x="587" y="304" font-size="12" fill="#525252">Python 3.13 · FastAPI</text>
+    <text x="587" y="322" font-size="11" fill="#737373">API REST · port 8002</text>
+
+    <text x="360" y="393" font-size="15" font-weight="600" fill="#0a0a0a">db · PostgreSQL 17</text>
+    <text x="360" y="411" font-size="12" fill="#525252">auth_db · villa_db · booking_db</text>
+    <text x="360" y="427" font-size="11" fill="#737373">un utilisateur SQL par base · volume db-data</text>
+  </g>
+</svg>

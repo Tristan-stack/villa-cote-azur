@@ -43,6 +43,9 @@ Pages compressées en gzip : environ 120 Ko pour l'accueil, polices comprises.
 
 Prérequis : Docker Engine ou Docker Desktop, avec Docker Compose v2.
 
+Toutes les commandes de ce dépôt sont écrites pour **bash** : Git Bash sous Windows, ou le
+terminal de Linux et macOS.
+
 ```bash
 docker compose up -d --build --wait
 ```
@@ -89,15 +92,25 @@ docker compose --env-file env/uat.env up -d --no-build --wait
 | `docker ps --filter "label=com.villa-cote-azur.env=test"` | conteneurs du projet, filtrés par label |
 | `docker compose exec db psql -U postgres -d auth_db` | console SQL dans la base des comptes |
 
+Dans la fenêtre Git Bash classique (hors du terminal de VS Code), une commande interactive comme
+`psql` peut rester sans invite ou afficher « the input device is not a TTY ». Il suffit alors de la
+préfixer par `winpty`, fourni avec Git Bash :
+
+```bash
+winpty docker compose exec db psql -U postgres -d auth_db
+```
+
 ## Tests
 
 ```bash
 # Tests unitaires (et lint) d'un service, dans un conteneur : comme dans la CI
 docker build --target test ./auth-service
 
-# Tests unitaires en local (sans Docker)
-cd auth-service && npm ci && npm test              # idem pour frontend
-cd villa-service && pip install -r requirements-dev.txt && pytest   # idem pour booking-service
+# Tests unitaires en local, sans Docker (Node.js 24 et Python 3.13 installés)
+(cd auth-service && npm ci && npm test)            # idem pour frontend
+# Python dans un environnement virtuel ; sous Linux et macOS : source .venv/bin/activate
+(cd villa-service && python -m venv .venv && source .venv/Scripts/activate \
+  && pip install -r requirements-dev.txt && pytest)   # idem pour booking-service
 
 # Test de bout en bout de l'application lancée (28 vérifications)
 bash scripts/smoke-test.sh

@@ -145,12 +145,10 @@ frontend/          Node.js : src/, views/, public/, test/, Dockerfile
 db/init/           script d'initialisation PostgreSQL (bases + utilisateurs)
 env/               modèles de configuration UAT et PROD
 scripts/           test de bout en bout
-docs/              rapport, fiche de révision, déroulé de la démo
+docs/              rapport de projet et ses images
 docker-compose.yml, .env, .github/workflows/ci.yml
 ```
 
 ## Documentation
 
 - [Rapport de projet](docs/rapport.md)
-- [Fiche de révision pour l'oral](docs/fiche-oral.md)
-- [Déroulé de la démo live](docs/demo.md)

@@ -14,6 +14,7 @@ export function createMemoryRepository() {
       users.push(user);
       return user;
     },
+    
 
     async findUserByEmail(email) {
       return users.find((u) => u.email === email) ?? null;
